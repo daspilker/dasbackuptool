@@ -1,20 +1,19 @@
 ﻿using System;
 using System.IO;
 using DasBackupTool.Model;
+using DasBackupTool.Properties;
 using DasBackupTool.Util;
 
 namespace DasBackupTool.Engine
 {
     public class LocalLister : IDisposable
     {
-        private Configuration configuration;
         private Files files;
         private BackupProgress backupProgress;
         private BackgroundTaskQueue queue = new BackgroundTaskQueue();
 
-        public LocalLister(Configuration configuration, Files files, BackupProgress backupProgress)
+        public LocalLister(Files files, BackupProgress backupProgress)
         {
-            this.configuration = configuration;
             this.files = files;
             this.backupProgress = backupProgress;
             queue.QueueEmpty += QueueEmpty;
@@ -34,15 +33,25 @@ namespace DasBackupTool.Engine
 
         private void ListBackupLocations(object state)
         {
-            foreach (BackupLocation backupLocation in configuration.BackupLocations)
+            if (Settings.Default.BackupLocations != null)
             {
-                if (IsDirectory(backupLocation.Path))
+                foreach (BackupLocation backupLocation in Settings.Default.BackupLocations)
                 {
-                    queue.Enqueue(ListDirectory, new DirectoryInfo(backupLocation.Path));
-                }
-                else
-                {
-                    queue.Enqueue(ListFile, new FileInfo(backupLocation.Path));
+                    try
+                    {
+                        if (IsDirectory(backupLocation.Path))
+                        {
+                            queue.Enqueue(ListDirectory, new DirectoryInfo(backupLocation.Path));
+                        }
+                        else
+                        {
+                            queue.Enqueue(ListFile, new FileInfo(backupLocation.Path));
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        // todo
+                    }
                 }
             }
         }
@@ -70,7 +79,7 @@ namespace DasBackupTool.Engine
         private void ListFile(object state)
         {
             FileInfo file = (FileInfo)state;
-            files.AddLocalFile(file.FullName, file.Length, file.LastWriteTimeUtc, null);
+            files.AddLocalFile(file.FullName, file.Length, file.LastWriteTimeUtc, (file.Attributes & System.IO.FileAttributes.Archive) == System.IO.FileAttributes.Archive);
         }
 
         private void QueueEmpty(object sender)

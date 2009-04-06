@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
 using DasBackupTool.Model;
+using DasBackupTool.Properties;
 using DasBackupTool.S3;
 using DasBackupTool.Util;
 
@@ -10,48 +9,60 @@ namespace DasBackupTool.Engine
 {
     public class BucketLister : IDisposable
     {
-        private Configuration configuration;
         private Files files;
         private BackupProgress backupProgress;
         private BackgroundTaskQueue queue = new BackgroundTaskQueue();
 
-        public BucketLister(Configuration configuration, Files files, BackupProgress backupProgress)
+        public BucketLister(Files files, BackupProgress backupProgress)
         {
-            this.configuration = configuration;
             this.files = files;
             this.backupProgress = backupProgress;
         }
 
         public void Run()
         {
-            backupProgress.AddStatus(BackupStatus.ListingBucket);
             queue.Run();
             queue.Enqueue(ListBucket, null);
+            Settings.Default.PropertyChanged += SettingsChanged;
         }
 
         public void Dispose()
         {
+            Settings.Default.PropertyChanged -= SettingsChanged;
             queue.Dispose();
         }
 
         private void ListBucket(object state)
         {
-            IBucket bucket = new Bucket(configuration.Bucket);
-            try
+            backupProgress.AddStatus(BackupStatus.ListingBucket);
+            files.RemoveRemoteFiles();
+            if (Settings.Default.Bucket != null)
             {
-                foreach (IObject file in bucket.ListObjects(new Credentials(configuration.AccessKeyId, configuration.SecretKey)))
+                IBucket bucket = new DasBackupTool.S3.Bucket(Settings.Default.Bucket.BucketName);
+                try
                 {
-                    files.AddRemoteFile(GetFileName(file.Key), file.Size, file.LastModified, file.ETag);
+                    foreach (IObject file in bucket.ListObjects(new Credentials(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey)))
+                    {
+                        files.AddRemoteFile(GetFileName(file.Key), file.Size, file.LastModified, file.ETag);
+                    }
                 }
-            }
-            catch (S3Exception)
-            {                
-                // todo
+                catch (S3Exception)
+                {
+                    // todo
+                }
             }
             backupProgress.RemoveStatus(BackupStatus.ListingBucket);
         }
 
-        private string GetFileName(string objectKey)
+        private void SettingsChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Bucket")
+            {
+                queue.Enqueue(ListBucket, null);
+            }
+        }
+        
+        private static string GetFileName(string objectKey)
         {
             objectKey = objectKey.Replace('/', '\\');
             objectKey = objectKey.Insert(objectKey.IndexOf('\\'), ":");

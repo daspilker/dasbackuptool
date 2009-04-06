@@ -13,6 +13,8 @@ namespace DasBackupTool.Model
         private long updatedFileCount;
         private long deletedFileCount;
         private long transferFileSize;
+        private long transferedFileCount;
+        private long transferedData;
         private IDictionary<String, File> files = new Dictionary<String, File>();
 
         public RepositoryStatistics LocalRepositoryStatistics
@@ -77,6 +79,32 @@ namespace DasBackupTool.Model
             }
         }
 
+        public long TransferedFileCount
+        {
+            get { return transferedFileCount; }
+            set
+            {
+                if (transferedFileCount != value)
+                {
+                    transferedFileCount = value;
+                    NotifyPropertyChanged("TransferedFileCount");
+                }
+            }
+        }
+
+        public long TransferedData
+        {
+            get { return transferedData; }
+            set
+            {
+                if (transferedData != value)
+                {
+                    transferedData = value;
+                    NotifyPropertyChanged("TransferedData");
+                }
+            }
+        }
+
         public IEnumerable<string> NewOrUpdatedFiles
         {
             get { return files.Values.Where(f => f.Status == FileStatus.New || f.Status == FileStatus.Updated).Select(f => f.Path); }
@@ -89,17 +117,17 @@ namespace DasBackupTool.Model
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void AddLocalFile(String path, long size, DateTime modificationDate, string md5)
+        public void AddLocalFile(String path, long size, DateTime modificationDate, bool archive)
         {
             File file = GetFile(path);
-            file.LocalAttributes = new FileAttributes(size, modificationDate, md5);
+            file.LocalAttributes = new FileAttributes(size, modificationDate, null, archive);
             UpdateStatistics();
         }
 
         public void AddRemoteFile(String path, long size, DateTime modificationDate, string md5)
         {
             File file = GetFile(path);
-            file.RemoteAttributes = new FileAttributes(size, modificationDate, md5);
+            file.RemoteAttributes = new FileAttributes(size, modificationDate, md5, null);
             UpdateStatistics();
         }
 
@@ -107,6 +135,28 @@ namespace DasBackupTool.Model
         {
             File file = GetFile(path);
             file.RemoteAttributes = file.LocalAttributes;
+            if (file.LocalAttributes != null)
+            {
+                file.LocalAttributes.Archive = false;
+                TransferedFileCount++;
+                TransferedData += file.LocalAttributes.Size;
+            }
+            UpdateStatistics();
+        }
+
+        public void RemoveRemoteFiles()
+        {
+            lock (files)
+            {
+                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.LocalAttributes == null).ToList())
+                {
+                    files.Remove(pair);
+                }
+                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.RemoteAttributes != null))
+                {
+                    pair.Value.RemoteAttributes = null;
+                }
+            }
             UpdateStatistics();
         }
 
@@ -130,18 +180,21 @@ namespace DasBackupTool.Model
 
         private void UpdateStatistics()
         {
-            IEnumerable<File> localFiles = files.Values.Where(f => f.LocalAttributes != null);
-            IEnumerable<File> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
-            localRepositoryStatistics.FileCount = localFiles.Count();
-            localRepositoryStatistics.TotalFileSize = localFiles.Sum(f => f.LocalAttributes.Size);
-            remoteRepositoryStatistics.FileCount = remoteFiles.Count();
-            remoteRepositoryStatistics.TotalFileSize = remoteFiles.Sum(f => f.RemoteAttributes.Size);
-            IEnumerable<File> newFiles = files.Values.Where(f => f.Status == FileStatus.New);
-            IEnumerable<File> updatedFiles = files.Values.Where(f => f.Status == FileStatus.Updated);
-            NewFileCount = newFiles.Count();
-            UpdatedFileCount = updatedFiles.Count();
-            DeletedFileCount = files.Values.Count(f => f.Status == FileStatus.Deleted);
-            TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
+            lock (files)
+            {
+                IEnumerable<File> localFiles = files.Values.Where(f => f.LocalAttributes != null);
+                IEnumerable<File> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
+                localRepositoryStatistics.FileCount = localFiles.Count();
+                localRepositoryStatistics.TotalFileSize = localFiles.Sum(f => f.LocalAttributes.Size);
+                remoteRepositoryStatistics.FileCount = remoteFiles.Count();
+                remoteRepositoryStatistics.TotalFileSize = remoteFiles.Sum(f => f.RemoteAttributes.Size);
+                IEnumerable<File> newFiles = files.Values.Where(f => f.Status == FileStatus.New);
+                IEnumerable<File> updatedFiles = files.Values.Where(f => f.Status == FileStatus.Updated);
+                NewFileCount = newFiles.Count();
+                UpdatedFileCount = updatedFiles.Count();
+                DeletedFileCount = files.Values.Count(f => f.Status == FileStatus.Deleted);
+                TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
+            }
         }
 
         private void NotifyPropertyChanged(string property)
@@ -227,7 +280,7 @@ namespace DasBackupTool.Model
                     }
                     else
                     {
-                        return localAttributes.Equals(remoteAttributes) ? FileStatus.NotModified : FileStatus.Updated;
+                        return localAttributes.Archive.Value || localAttributes.Size != remoteAttributes.Size ? FileStatus.Updated : FileStatus.NotModified;
                     }
                 }
             }
@@ -253,12 +306,14 @@ namespace DasBackupTool.Model
         private long size;
         private DateTime modificationDate;
         private string md5;
+        private bool? archive;
 
-        public FileAttributes(long size, DateTime modificationDate, string md5)
+        public FileAttributes(long size, DateTime modificationDate, string md5, bool? archive)
         {
             this.size = size;
             this.modificationDate = modificationDate;
             this.md5 = md5;
+            this.archive = archive;
         }
 
         public long Size
@@ -276,11 +331,10 @@ namespace DasBackupTool.Model
             get { return md5; }
         }
 
-        public override bool Equals(object obj)
+        public bool? Archive
         {
-            FileAttributes attributes = obj as FileAttributes;
-            if (attributes == null) return false;
-            return attributes.size == size && attributes.modificationDate == modificationDate;
+            get { return archive; }
+            set { archive = value; }
         }
     }
 }

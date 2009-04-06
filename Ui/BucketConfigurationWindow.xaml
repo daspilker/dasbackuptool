@@ -1,11 +1,11 @@
 ﻿<Window x:Class="DasBackupTool.Ui.BucketConfigurationWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Configure Bucket" SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize">
+    Title="Bucket Configuration" SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">    
     <Grid Margin="12,12,12,12">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
-			<ColumnDefinition MinWidth="180"/>
+			<ColumnDefinition MinWidth="240"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -23,8 +23,8 @@
 		<Label Grid.Column="0" Grid.Row="4">Bucket:</Label>
 		<TextBox Name="BucketTextBox" Grid.Column="1" Grid.Row="4"/>
 		<StackPanel Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-			<Button Margin="0,0,6,0" Click="OkButtonClick">OK</Button>
-			<Button Click="CancelButtonClick">Cancel</Button>
+			<Button Margin="0,0,6,0" Click="OkButtonClick" IsDefault="True">OK</Button>
+			<Button Click="CancelButtonClick" IsCancel="True">Cancel</Button>
 		</StackPanel>
 	</Grid>
 </Window>

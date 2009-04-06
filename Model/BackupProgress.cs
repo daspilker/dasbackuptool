@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace DasBackupTool.Model
 {
     public class BackupProgress : INotifyPropertyChanged
     {
         private BackupStatus status;
-        private long transferedFileCount;
-        private long transferedData;
         private object statusLock = new object();
-        private object statisticsLock = new object();
 
         public string StatusMessage
         {
@@ -34,16 +28,6 @@ namespace DasBackupTool.Model
             }
         }
 
-        public long TransferedFileCount
-        {
-            get { return transferedFileCount; }
-        }
-
-        public long TransferedData
-        {
-            get { return transferedData; }
-        }
-
         public void AddStatus(BackupStatus status)
         {
             lock (statusLock)
@@ -60,17 +44,6 @@ namespace DasBackupTool.Model
                 this.status &= ~status;
             }
             NotifyPropertyChanged("StatusMessage");
-        }
-
-        public void FileBackedUp(long size)
-        {
-            lock (statisticsLock)
-            {
-                transferedFileCount++;
-                transferedData += size;
-            }
-            NotifyPropertyChanged("TransferedFileCount");
-            NotifyPropertyChanged("TransferedData");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

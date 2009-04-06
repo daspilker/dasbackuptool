@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
+using DasBackupTool.Engine;
 using DasBackupTool.Model;
 using DasBackupTool.Ui;
-using DasBackupTool.Engine;
 
 namespace DasBackupTool
 {
     public partial class App : Application
     {
         private Files files = new Files();
-        private Configuration configuration = new Configuration();
         private BackupProgress backupProgress = new BackupProgress();
         private LocalLister localLister;
         private BucketLister remoteLister;
@@ -23,19 +17,18 @@ namespace DasBackupTool
         {
             base.OnStartup(e);
 
-            configuration.AccessKeyId = "xxxx";
-            configuration.SecretKey = "xxxx";
-            configuration.Bucket = "xxxx";
-            configuration.AddBackupLocation(@"xxxx", false);
-
-            remoteLister = new BucketLister(configuration, files, backupProgress);
+            remoteLister = new BucketLister(files, backupProgress);
             remoteLister.Run();
-            localLister = new LocalLister(configuration, files, backupProgress);
+            localLister = new LocalLister(files, backupProgress);
             localLister.Run();
 
-            backupEngine = new BackupEngine(configuration, files, backupProgress);
+            //DasBackupTool.Properties.Settings.Default.BackupLocations = new BackupLocations();
+            //DasBackupTool.Properties.Settings.Default.BackupLocations.AddBackupLocation(@"C:\Users\dspilker\Temp", false);
+            //DasBackupTool.Properties.Settings.Default.Save();
+
+            backupEngine = new BackupEngine(files, backupProgress);
             
-            MainWindow mainWindow = new MainWindow(files, configuration, backupProgress, backupEngine);
+            MainWindow mainWindow = new MainWindow(files, backupProgress, backupEngine);
             mainWindow.Show();
         }
 

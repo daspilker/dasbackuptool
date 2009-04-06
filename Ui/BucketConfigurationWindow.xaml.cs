@@ -11,30 +11,29 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using DasBackupTool.Model;
+using DasBackupTool.Properties;
 
 namespace DasBackupTool.Ui
 {
     public partial class BucketConfigurationWindow : Window
     {
-        private Configuration configuration;
-
-        public BucketConfigurationWindow(Configuration configuration)
+        public BucketConfigurationWindow()
         {
-            this.configuration = configuration;
-
             InitializeComponent();
             DataContext = this;
 
-            AccessKeyIdTextBox.Text = configuration.AccessKeyId;
-            SecretAccessKeyPasswordBox.Password = configuration.SecretKey;
-            BucketTextBox.Text = configuration.Bucket;
+            if (Settings.Default.Bucket != null)
+            {
+                AccessKeyIdTextBox.Text = Settings.Default.Bucket.AccessKeyId;
+                SecretAccessKeyPasswordBox.Password = Settings.Default.Bucket.SecretAccessKey;
+                BucketTextBox.Text = Settings.Default.Bucket.BucketName;
+            }
         }
 
         private void OkButtonClick(object sender, RoutedEventArgs e)
         {
-            configuration.AccessKeyId = AccessKeyIdTextBox.Text;
-            configuration.SecretKey = SecretAccessKeyPasswordBox.Password;
-            configuration.Bucket = BucketTextBox.Text;
+            Settings.Default.Bucket = new Bucket(AccessKeyIdTextBox.Text, SecretAccessKeyPasswordBox.Password, BucketTextBox.Text);
+            Settings.Default.Save();
             this.Close();
         }
 

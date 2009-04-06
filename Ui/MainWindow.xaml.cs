@@ -21,13 +21,11 @@ namespace DasBackupTool.Ui
         public static readonly DependencyProperty BackupProgressProperty = DependencyProperty.Register("BackupProgress", typeof(BackupProgress), typeof(MainWindow));
 
         private BackupEngine backupEngine;
-        private Configuration configuration;
 
-        public MainWindow(Files files, Configuration configuration, BackupProgress backupProgress, BackupEngine backupEngine)
+        public MainWindow(Files files, BackupProgress backupProgress, BackupEngine backupEngine)
         {
             SetValue(FilesProperty, files);
             SetValue(BackupProgressProperty, backupProgress);
-            this.configuration = configuration;
             this.backupEngine = backupEngine;
 
             InitializeComponent();
@@ -41,7 +39,7 @@ namespace DasBackupTool.Ui
 
         private void ConfigureBucketExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            BucketConfigurationWindow bucketConfigurationWindow = new BucketConfigurationWindow(configuration);
+            BucketConfigurationWindow bucketConfigurationWindow = new BucketConfigurationWindow();
             bucketConfigurationWindow.Owner = this;            
             bucketConfigurationWindow.ShowDialog();
         }
