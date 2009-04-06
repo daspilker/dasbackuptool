@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
@@ -21,25 +22,28 @@ namespace DasBackupTool.Engine
 
         public void Run()
         {
-            backupProgress.AddStatus(BackupStatus.ListingLocal);
             queue.Run();
             queue.Enqueue(ListBackupLocations, null);
+            Settings.Default.PropertyChanged += SettingsChanged;
         }
 
         public void Dispose()
         {
+            Settings.Default.PropertyChanged -= SettingsChanged;
             queue.Dispose();
         }
 
         private void ListBackupLocations(object state)
         {
+            backupProgress.AddStatus(BackupStatus.ListingLocal);
+            files.RemoveLocalFiles();
             if (Settings.Default.BackupLocations != null)
             {
                 foreach (BackupLocation backupLocation in Settings.Default.BackupLocations)
                 {
                     try
                     {
-                        if (IsDirectory(backupLocation.Path))
+                        if (DasBackupTool.Util.File.IsDirectory(backupLocation.Path))
                         {
                             queue.Enqueue(ListDirectory, new DirectoryInfo(backupLocation.Path));
                         }
@@ -87,9 +91,13 @@ namespace DasBackupTool.Engine
             backupProgress.RemoveStatus(BackupStatus.ListingLocal);
         }
 
-        private bool IsDirectory(string path)
+        private void SettingsChanged(object sender, PropertyChangedEventArgs e)
         {
-            return (System.IO.File.GetAttributes(path) & System.IO.FileAttributes.Directory) == System.IO.FileAttributes.Directory;
+            if (e.PropertyName == "BackupLocations")
+            {                
+                queue.Clear();
+                queue.Enqueue(ListBackupLocations, null);
+            }
         }
     }
 }

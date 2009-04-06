@@ -12,6 +12,16 @@ namespace DasBackupTool.Model
     {
         private ICollection<BackupLocation> backupLocations = new HashSet<BackupLocation>();
 
+        public BackupLocations() { }
+
+        public BackupLocations(IEnumerable<BackupLocation> backupLocations)
+        {
+            foreach (BackupLocation backupLocation in backupLocations)
+            {
+                this.backupLocations.Add(backupLocation);
+            }
+        }
+
         IEnumerator<BackupLocation> IEnumerable<BackupLocation>.GetEnumerator()
         {
             return backupLocations.GetEnumerator();
@@ -28,7 +38,7 @@ namespace DasBackupTool.Model
         }
     }
 
-    public class BackupLocation
+    public class BackupLocation : ICloneable, INotifyPropertyChanged
     {
         private string path;
         private bool excluded;
@@ -42,21 +52,53 @@ namespace DasBackupTool.Model
         public string Path
         {
             get { return path; }
+            set
+            {
+                if (path != value)
+                {
+                    path = value;
+                    NotifyPropertyChanged("Path");
+                }
+            }
         }
 
         public bool Excluded
         {
             get { return excluded; }
+            set
+            {
+                if (excluded != value)
+                {
+                    excluded = value;
+                    NotifyPropertyChanged("Excluded");
+                }
+            }
         }
 
         public override bool Equals(object obj)
         {
-            return path.Equals(obj);
+            BackupLocation other = obj as BackupLocation;
+            return other != null && path.Equals(other.path);
         }
 
         public override int GetHashCode()
         {
             return path.GetHashCode();
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string property)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
         }
     }
 

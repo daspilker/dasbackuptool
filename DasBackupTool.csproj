@@ -53,10 +53,15 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -72,6 +77,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Ui\BackupLocationSelectionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ui\BucketConfigurationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -111,15 +120,20 @@
     <Compile Include="S3\S3.cs" />
     <Compile Include="S3\S3Exception.cs" />
     <Compile Include="S3\S3Helper.cs" />
+    <Compile Include="Ui\BackupLocationSelectionWindow.xaml.cs">
+      <DependentUpon>BackupLocationSelectionWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Ui\BucketConfigurationWindow.xaml.cs">
       <DependentUpon>BucketConfigurationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\Commands.cs" />
+    <Compile Include="Ui\ListViewBehaviors.cs" />
     <Compile Include="Ui\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\ValueConverters.cs" />
     <Compile Include="Util\BackgroundTaskQueue.cs" />
+    <Compile Include="Util\File.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

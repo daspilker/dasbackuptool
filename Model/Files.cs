@@ -144,6 +144,22 @@ namespace DasBackupTool.Model
             UpdateStatistics();
         }
 
+        public void RemoveLocalFiles()
+        {
+            lock (files)
+            {
+                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.RemoteAttributes == null).ToList())
+                {
+                    files.Remove(pair);
+                }
+                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.LocalAttributes != null))
+                {
+                    pair.Value.LocalAttributes = null;
+                }
+            }
+            UpdateStatistics();
+        }
+
         public void RemoveRemoteFiles()
         {
             lock (files)

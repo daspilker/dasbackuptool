@@ -32,9 +32,16 @@ namespace DasBackupTool.Ui
             DataContext = this;
         }
 
-        private void ConfigureBucketCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        private void ConfigureCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
+        }
+
+        private void SelectBackupLocationsExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            BackupLocationSelectionWindow backupLocationSelectionWindow = new BackupLocationSelectionWindow();
+            backupLocationSelectionWindow.Owner = this;
+            backupLocationSelectionWindow.ShowDialog();
         }
 
         private void ConfigureBucketExecuted(object sender, ExecutedRoutedEventArgs e)

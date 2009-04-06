@@ -24,7 +24,7 @@
 		<TextBox Name="BucketTextBox" Grid.Column="1" Grid.Row="4"/>
 		<StackPanel Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Margin="0,0,6,0" Click="OkButtonClick" IsDefault="True">OK</Button>
-			<Button Click="CancelButtonClick" IsCancel="True">Cancel</Button>
+			<Button IsCancel="True">Cancel</Button>
 		</StackPanel>
 	</Grid>
 </Window>

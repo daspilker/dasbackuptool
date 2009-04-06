@@ -58,6 +58,7 @@ namespace DasBackupTool.Engine
         {
             if (e.PropertyName == "Bucket")
             {
+                queue.Clear();
                 queue.Enqueue(ListBucket, null);
             }
         }
