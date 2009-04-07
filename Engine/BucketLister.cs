@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
 using DasBackupTool.S3;
@@ -34,24 +36,38 @@ namespace DasBackupTool.Engine
 
         private void ListBucket(object state)
         {
-            backupProgress.AddStatus(BackupStatus.ListingBucket);
-            files.RemoveRemoteFiles();
+            if (state == null)
+            {
+                backupProgress.AddStatus(BackupStatus.ListingBucket);
+                files.RemoveRemoteFiles();
+            }
+            string marker = null;
             if (Settings.Default.Bucket != null)
             {
-                IBucket bucket = new DasBackupTool.S3.Bucket(Settings.Default.Bucket.BucketName);
+                DasBackupTool.S3.Bucket bucket = new DasBackupTool.S3.Bucket(Settings.Default.Bucket.BucketName);
                 try
                 {
-                    foreach (IObject file in bucket.ListObjects(new Credentials(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey)))
+                    IDictionary<string, FileAttributes> remoteFiles = new Dictionary<string, FileAttributes>();
+                    foreach (IObject file in bucket.ListObjects(new Credentials(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey), (string)state))
                     {
-                        files.AddRemoteFile(GetFileName(file.Key), file.Size, file.LastModified, file.ETag);
+                        remoteFiles.Add(GetFileName(file.Key), new FileAttributes(file.Size, file.LastModified, file.ETag, null));
+                        marker = file.Key;
                     }
+                    files.AddRemoteFiles(remoteFiles);
                 }
-                catch (S3Exception)
+                catch (S3Exception e)
                 {
-                    // todo
+                    MessageBox.Show(e.Message);
                 }
             }
-            backupProgress.RemoveStatus(BackupStatus.ListingBucket);
+            if (marker == null)
+            {
+                backupProgress.RemoveStatus(BackupStatus.ListingBucket);
+            }
+            else
+            {
+                queue.Enqueue(ListBucket, marker);
+            }
         }
 
         private void SettingsChanged(object sender, PropertyChangedEventArgs e)

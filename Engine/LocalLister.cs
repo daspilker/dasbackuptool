@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.IO;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
 using DasBackupTool.Util;
+using System.Threading;
 
 namespace DasBackupTool.Engine
 {
@@ -11,92 +13,129 @@ namespace DasBackupTool.Engine
     {
         private Files files;
         private BackupProgress backupProgress;
-        private BackgroundTaskQueue queue = new BackgroundTaskQueue();
+        private Thread thread;
+        private object monitor = new object();
+        IDictionary<string, DasBackupTool.Model.FileAttributes> localFiles = new Dictionary<string, DasBackupTool.Model.FileAttributes>();
 
         public LocalLister(Files files, BackupProgress backupProgress)
         {
             this.files = files;
             this.backupProgress = backupProgress;
-            queue.QueueEmpty += QueueEmpty;
+            Settings.Default.PropertyChanged += SettingsChanged;
         }
 
         public void Run()
         {
-            queue.Run();
-            queue.Enqueue(ListBackupLocations, null);
-            Settings.Default.PropertyChanged += SettingsChanged;
+            lock (monitor)
+            {
+                if (thread != null)
+                {
+                    Abort();
+                }
+                thread = new Thread(ListBackupLocations);
+                thread.Start();
+            }
         }
 
         public void Dispose()
         {
+            Abort();
             Settings.Default.PropertyChanged -= SettingsChanged;
-            queue.Dispose();
         }
 
-        private void ListBackupLocations(object state)
+        private void Abort()
         {
-            backupProgress.AddStatus(BackupStatus.ListingLocal);
-            files.RemoveLocalFiles();
-            if (Settings.Default.BackupLocations != null)
+            lock (monitor)
             {
-                foreach (BackupLocation backupLocation in Settings.Default.BackupLocations)
+                if (thread != null)
                 {
-                    try
-                    {
-                        if (DasBackupTool.Util.File.IsDirectory(backupLocation.Path))
-                        {
-                            queue.Enqueue(ListDirectory, new DirectoryInfo(backupLocation.Path));
-                        }
-                        else
-                        {
-                            queue.Enqueue(ListFile, new FileInfo(backupLocation.Path));
-                        }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        // todo
-                    }
+                    thread.Abort();
+                    thread.Join();
+                    thread = null;
                 }
             }
         }
 
-        private void ListDirectory(object state)
+        private void ListBackupLocations()
         {
-            DirectoryInfo directory = (DirectoryInfo)state;
+            backupProgress.AddStatus(BackupStatus.ListingLocal);
+            try
+            {
+                files.RemoveLocalFiles();
+                localFiles.Clear();
+                if (Settings.Default.BackupLocations != null)
+                {
+                    foreach (BackupLocation backupLocation in Settings.Default.BackupLocations)
+                    {
+                        try
+                        {
+                            if (DasBackupTool.Util.File.IsDirectory(backupLocation.Path))
+                            {
+                                ListDirectory(new DirectoryInfo(backupLocation.Path));
+                            }
+                            else
+                            {
+                                ListFile(new FileInfo(backupLocation.Path));
+                            }
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            // todo
+                        }
+                    }
+                    CommitFiles();
+                }
+            }
+            finally
+            {
+                backupProgress.RemoveStatus(BackupStatus.ListingLocal);
+            }
+        }
+
+        private void ListDirectory(DirectoryInfo directory)
+        {
             try
             {
                 foreach (DirectoryInfo subDirectory in directory.GetDirectories())
                 {
-                    queue.Enqueue(ListDirectory, subDirectory);
+                    ListDirectory(subDirectory);
                 }
                 foreach (FileInfo file in directory.GetFiles())
                 {
-                    queue.Enqueue(ListFile, file);
+                    ListFile(file);
                 }
             }
             catch (UnauthorizedAccessException)
-            { 
+            {
                 // todo
             }
         }
 
-        private void ListFile(object state)
+        private void ListFile(FileInfo file)
         {
-            FileInfo file = (FileInfo)state;
-            files.AddLocalFile(file.FullName, file.Length, file.LastWriteTimeUtc, (file.Attributes & System.IO.FileAttributes.Archive) == System.IO.FileAttributes.Archive);
+            localFiles.Add(file.FullName, GetFileAttributes(file));
+            if (localFiles.Count >= 1000)
+            {
+                CommitFiles();
+            }
         }
 
-        private void QueueEmpty(object sender)
+        private void CommitFiles()
         {
-            backupProgress.RemoveStatus(BackupStatus.ListingLocal);
+            files.AddLocalFiles(localFiles);
+            localFiles.Clear();
+        }
+
+        private DasBackupTool.Model.FileAttributes GetFileAttributes(FileInfo file)
+        {
+            return new DasBackupTool.Model.FileAttributes(file.Length, file.LastWriteTimeUtc, null, (file.Attributes & System.IO.FileAttributes.Archive) == System.IO.FileAttributes.Archive);
         }
 
         private void SettingsChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "BackupLocations")
-            {                
-                queue.Clear();
-                queue.Enqueue(ListBackupLocations, null);
+            {
+                Run();
             }
         }
     }

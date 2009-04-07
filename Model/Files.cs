@@ -117,18 +117,37 @@ namespace DasBackupTool.Model
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void AddLocalFile(String path, long size, DateTime modificationDate, bool archive)
+        public void AddLocalFile(String path, FileAttributes attributes)
         {
             File file = GetFile(path);
-            file.LocalAttributes = new FileAttributes(size, modificationDate, null, archive);
+            file.LocalAttributes = attributes;
             UpdateStatistics();
         }
 
-        public void AddRemoteFile(String path, long size, DateTime modificationDate, string md5)
+        public void AddLocalFiles(IDictionary<string, FileAttributes> files)
         {
-            File file = GetFile(path);
-            file.RemoteAttributes = new FileAttributes(size, modificationDate, md5, null);
-            UpdateStatistics();
+            foreach (string path in files.Keys)
+            {
+                File file = GetFile(path);
+                file.LocalAttributes = files[path];
+            }
+            if (files.Count > 0)
+            {
+                UpdateStatistics();
+            }
+        }
+
+        public void AddRemoteFiles(IDictionary<string, FileAttributes> files)
+        {
+            foreach (string path in files.Keys)
+            {
+                File file = GetFile(path);
+                file.RemoteAttributes = files[path];
+            }
+            if (files.Count > 0)
+            {
+                UpdateStatistics();
+            }
         }
 
         public void FileBackedUp(String path)

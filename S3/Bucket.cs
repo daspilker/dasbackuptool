@@ -66,6 +66,30 @@ namespace DasBackupTool.S3
             return result;
         }
 
+        public IEnumerable<IObject> ListObjects(ICredentials credentials, string marker)
+        {
+            string query = marker == null ? "" : "?marker=" + S3Helper.Encode(marker);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://s3.amazonaws.com/" + Name + query);
+            XElement xml;
+            using (HttpWebResponse response = S3Helper.Send(request, credentials))
+            {
+                 xml = XElement.Load(new StreamReader(response.GetResponseStream()));
+            }
+            IEnumerable<IObject> objects = from e in xml.Elements(S3.S3_NAMESPACE + "Contents")
+                                           select (IObject)new DasBackupTool.S3.Object()
+                                           {
+                                               Key = (string)e.Element(S3.S3_NAMESPACE + "Key"),
+                                               LastModified = (DateTime)e.Element(S3.S3_NAMESPACE + "LastModified"),
+                                               ETag = (string)e.Element(S3.S3_NAMESPACE + "ETag"),
+                                               Size = (long)e.Element(S3.S3_NAMESPACE + "Size")
+                                           };
+
+            foreach (IObject o in objects)
+            {
+                yield return o;
+            }
+        }
+
         public void PutObject(ICredentials credentials, string name, long size, string type, Stream stream)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://s3.amazonaws.com/" + Name + "/" + S3Helper.Encode(name));
