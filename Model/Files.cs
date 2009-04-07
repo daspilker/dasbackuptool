@@ -117,14 +117,14 @@ namespace DasBackupTool.Model
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void AddLocalFile(String path, FileAttributes attributes)
+        public void AddLocalFile(String path, File.Attributes attributes)
         {
             File file = GetFile(path);
             file.LocalAttributes = attributes;
             UpdateStatistics();
         }
 
-        public void AddLocalFiles(IDictionary<string, FileAttributes> files)
+        public void AddLocalFiles(IDictionary<string, File.Attributes> files)
         {
             foreach (string path in files.Keys)
             {
@@ -137,7 +137,7 @@ namespace DasBackupTool.Model
             }
         }
 
-        public void AddRemoteFiles(IDictionary<string, FileAttributes> files)
+        public void AddRemoteFiles(IDictionary<string, File.Attributes> files)
         {
             foreach (string path in files.Keys)
             {
@@ -286,8 +286,8 @@ namespace DasBackupTool.Model
     public class File
     {
         private string path;
-        private FileAttributes localAttributes;
-        private FileAttributes remoteAttributes;
+        private Attributes localAttributes;
+        private Attributes remoteAttributes;
 
         public File(string path)
         {
@@ -321,55 +321,55 @@ namespace DasBackupTool.Model
             }
         }
 
-        public FileAttributes LocalAttributes
+        public Attributes LocalAttributes
         {
             get { return localAttributes; }
             set { localAttributes = value; }
         }
 
-        public FileAttributes RemoteAttributes
+        public Attributes RemoteAttributes
         {
             get { return remoteAttributes; }
             set { remoteAttributes = value; }
         }
+
+        public class Attributes
+        {
+            private long size;
+            private DateTime modificationDate;
+            private string md5;
+            private bool? archive;
+
+            public Attributes(long size, DateTime modificationDate, string md5, bool? archive)
+            {
+                this.size = size;
+                this.modificationDate = modificationDate;
+                this.md5 = md5;
+                this.archive = archive;
+            }
+
+            public long Size
+            {
+                get { return size; }
+            }
+
+            public DateTime ModificationDate
+            {
+                get { return modificationDate; }
+            }
+
+            public string MD5
+            {
+                get { return md5; }
+            }
+
+            public bool? Archive
+            {
+                get { return archive; }
+                set { archive = value; }
+            }
+        }
     }
 
     public enum FileStatus { New, Updated, Deleted, NotModified };
-
-    public class FileAttributes
-    {
-        private long size;
-        private DateTime modificationDate;
-        private string md5;
-        private bool? archive;
-
-        public FileAttributes(long size, DateTime modificationDate, string md5, bool? archive)
-        {
-            this.size = size;
-            this.modificationDate = modificationDate;
-            this.md5 = md5;
-            this.archive = archive;
-        }
-
-        public long Size
-        {
-            get { return size; }
-        }
-
-        public DateTime ModificationDate
-        {
-            get { return modificationDate; }
-        }
-
-        public string MD5
-        {
-            get { return md5; }
-        }
-
-        public bool? Archive
-        {
-            get { return archive; }
-            set { archive = value; }
-        }
-    }
 }

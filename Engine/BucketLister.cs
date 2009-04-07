@@ -13,60 +13,60 @@ namespace DasBackupTool.Engine
     {
         private Files files;
         private BackupProgress backupProgress;
-        private BackgroundTaskQueue queue = new BackgroundTaskQueue();
+        private AbortableTaskExecutor executor;
 
         public BucketLister(Files files, BackupProgress backupProgress)
         {
             this.files = files;
             this.backupProgress = backupProgress;
+
+            executor = new AbortableTaskExecutor(ListBucket);
+            Settings.Default.PropertyChanged += SettingsChanged;
         }
 
         public void Run()
         {
-            queue.Run();
-            queue.Enqueue(ListBucket, null);
-            Settings.Default.PropertyChanged += SettingsChanged;
+            executor.Run();
         }
 
         public void Dispose()
         {
             Settings.Default.PropertyChanged -= SettingsChanged;
-            queue.Dispose();
+            executor.Dispose();
         }
 
-        private void ListBucket(object state)
+        private void ListBucket()
         {
-            if (state == null)
+            backupProgress.AddStatus(BackupStatus.ListingBucket);
+            try
             {
-                backupProgress.AddStatus(BackupStatus.ListingBucket);
                 files.RemoveRemoteFiles();
-            }
-            string marker = null;
-            if (Settings.Default.Bucket != null)
-            {
-                DasBackupTool.S3.Bucket bucket = new DasBackupTool.S3.Bucket(Settings.Default.Bucket.BucketName);
-                try
+                if (Settings.Default.Bucket != null)
                 {
-                    IDictionary<string, FileAttributes> remoteFiles = new Dictionary<string, FileAttributes>();
-                    foreach (IObject file in bucket.ListObjects(new Credentials(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey), (string)state))
+                    DasBackupTool.S3.Bucket bucket = new DasBackupTool.S3.Bucket(Settings.Default.Bucket.BucketName);
+                    try
                     {
-                        remoteFiles.Add(GetFileName(file.Key), new FileAttributes(file.Size, file.LastModified, file.ETag, null));
-                        marker = file.Key;
+                        IDictionary<string, File.Attributes> remoteFiles = new Dictionary<string, File.Attributes>();
+                        foreach (IObject file in bucket.ListObjects(new Credentials(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey)))
+                        {
+                            remoteFiles.Add(GetFileName(file.Key), new File.Attributes(file.Size, file.LastModified, file.ETag, null));
+                            if (remoteFiles.Count == 1000)
+                            {
+                                files.AddRemoteFiles(remoteFiles);
+                                remoteFiles.Clear();
+                            }
+                        }
+                        files.AddRemoteFiles(remoteFiles);
                     }
-                    files.AddRemoteFiles(remoteFiles);
-                }
-                catch (S3Exception e)
-                {
-                    MessageBox.Show(e.Message);
+                    catch (S3Exception e)
+                    {
+                        MessageBox.Show(e.Message);
+                    }
                 }
             }
-            if (marker == null)
+            finally
             {
                 backupProgress.RemoveStatus(BackupStatus.ListingBucket);
-            }
-            else
-            {
-                queue.Enqueue(ListBucket, marker);
             }
         }
 
@@ -74,11 +74,10 @@ namespace DasBackupTool.Engine
         {
             if (e.PropertyName == "Bucket")
             {
-                queue.Clear();
-                queue.Enqueue(ListBucket, null);
+                executor.Run();
             }
         }
-        
+
         private static string GetFileName(string objectKey)
         {
             objectKey = objectKey.Replace('/', '\\');

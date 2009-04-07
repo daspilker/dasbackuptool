@@ -42,51 +42,27 @@ namespace DasBackupTool.S3
             {
                 string query = marker == null ? "" : "?marker=" + S3Helper.Encode(marker);
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://s3.amazonaws.com/" + Name + query);
+                XElement xml;
                 using (HttpWebResponse response = S3Helper.Send(request, credentials))
                 {
-                    XElement xml = XElement.Load(new StreamReader(response.GetResponseStream()));
-                    truncated = (bool)xml.Element(S3.S3_NAMESPACE + "IsTruncated");
-
-                    IEnumerable<IObject> objects = from e in xml.Elements(S3.S3_NAMESPACE + "Contents")
-                                                   select (IObject)new DasBackupTool.S3.Object()
-                                                   {
-                                                       Key = (string)e.Element(S3.S3_NAMESPACE + "Key"),
-                                                       LastModified = (DateTime)e.Element(S3.S3_NAMESPACE + "LastModified"),
-                                                       ETag = (string)e.Element(S3.S3_NAMESPACE + "ETag"),
-                                                       Size = (long)e.Element(S3.S3_NAMESPACE + "Size")
-                                                   };
-
-                    foreach (IObject o in objects)
-                    {
-                        result.Add(o);
-                    }
-                    marker = result[result.Count - 1].Key;
+                    xml = XElement.Load(new StreamReader(response.GetResponseStream()));
                 }
-            }
-            return result;
-        }
+                truncated = (bool)xml.Element(S3.S3_NAMESPACE + "IsTruncated");
 
-        public IEnumerable<IObject> ListObjects(ICredentials credentials, string marker)
-        {
-            string query = marker == null ? "" : "?marker=" + S3Helper.Encode(marker);
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://s3.amazonaws.com/" + Name + query);
-            XElement xml;
-            using (HttpWebResponse response = S3Helper.Send(request, credentials))
-            {
-                 xml = XElement.Load(new StreamReader(response.GetResponseStream()));
-            }
-            IEnumerable<IObject> objects = from e in xml.Elements(S3.S3_NAMESPACE + "Contents")
-                                           select (IObject)new DasBackupTool.S3.Object()
-                                           {
-                                               Key = (string)e.Element(S3.S3_NAMESPACE + "Key"),
-                                               LastModified = (DateTime)e.Element(S3.S3_NAMESPACE + "LastModified"),
-                                               ETag = (string)e.Element(S3.S3_NAMESPACE + "ETag"),
-                                               Size = (long)e.Element(S3.S3_NAMESPACE + "Size")
-                                           };
+                IEnumerable<IObject> objects = from e in xml.Elements(S3.S3_NAMESPACE + "Contents")
+                                               select (IObject)new DasBackupTool.S3.Object()
+                                               {
+                                                   Key = (string)e.Element(S3.S3_NAMESPACE + "Key"),
+                                                   LastModified = (DateTime)e.Element(S3.S3_NAMESPACE + "LastModified"),
+                                                   ETag = (string)e.Element(S3.S3_NAMESPACE + "ETag"),
+                                                   Size = (long)e.Element(S3.S3_NAMESPACE + "Size")
+                                               };
 
-            foreach (IObject o in objects)
-            {
-                yield return o;
+                foreach (IObject o in objects)
+                {
+                    yield return o;
+                    marker = o.Key;
+                }
             }
         }
 

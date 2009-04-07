@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+using System.Linq;
 
 namespace DasBackupTool.Model
 {
@@ -20,6 +21,11 @@ namespace DasBackupTool.Model
             {
                 this.backupLocations.Add(backupLocation);
             }
+        }
+
+        public IEnumerable<BackupLocation> IncludedLocations
+        {
+            get { return backupLocations.Where(b => !b.Excluded); }
         }
 
         IEnumerator<BackupLocation> IEnumerable<BackupLocation>.GetEnumerator()
@@ -72,6 +78,14 @@ namespace DasBackupTool.Model
                     excluded = value;
                     NotifyPropertyChanged("Excluded");
                 }
+            }
+        }
+
+        public bool IsDirectory
+        {
+            get
+            {
+                return (System.IO.File.GetAttributes(path) & System.IO.FileAttributes.Directory) == System.IO.FileAttributes.Directory;
             }
         }
 

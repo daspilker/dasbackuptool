@@ -132,8 +132,8 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\ValueConverters.cs" />
+    <Compile Include="Util\AbortableTaskExecutor.cs" />
     <Compile Include="Util\BackgroundTaskQueue.cs" />
-    <Compile Include="Util\File.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

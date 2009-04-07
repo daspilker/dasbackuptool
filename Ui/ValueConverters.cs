@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using DasBackupTool.Model;
 
 namespace DasBackupTool.Ui
 {
@@ -65,7 +66,7 @@ namespace DasBackupTool.Ui
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return DasBackupTool.Util.File.IsDirectory((string)value) ? directoryImageSource : fileImageSource;
+            return value == null ? null : ((BackupLocation)value).IsDirectory ? directoryImageSource : fileImageSource;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,11 +1,13 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
 using DasBackupTool.Util;
-using System.Threading;
+using DirectoryInfo = System.IO.DirectoryInfo;
+using FileAttributes = System.IO.FileAttributes;
+using FileInfo = System.IO.FileInfo;
+using FileNotFoundException = System.IO.FileNotFoundException;
 
 namespace DasBackupTool.Engine
 {
@@ -13,47 +15,27 @@ namespace DasBackupTool.Engine
     {
         private Files files;
         private BackupProgress backupProgress;
-        private Thread thread;
-        private object monitor = new object();
-        IDictionary<string, DasBackupTool.Model.FileAttributes> localFiles = new Dictionary<string, DasBackupTool.Model.FileAttributes>();
+        private IDictionary<string, File.Attributes> localFiles = new Dictionary<string, File.Attributes>();
+        private AbortableTaskExecutor executor;
 
         public LocalLister(Files files, BackupProgress backupProgress)
         {
             this.files = files;
             this.backupProgress = backupProgress;
+
+            executor = new AbortableTaskExecutor(ListBackupLocations);
             Settings.Default.PropertyChanged += SettingsChanged;
         }
 
         public void Run()
         {
-            lock (monitor)
-            {
-                if (thread != null)
-                {
-                    Abort();
-                }
-                thread = new Thread(ListBackupLocations);
-                thread.Start();
-            }
+            executor.Run();
         }
 
         public void Dispose()
         {
-            Abort();
             Settings.Default.PropertyChanged -= SettingsChanged;
-        }
-
-        private void Abort()
-        {
-            lock (monitor)
-            {
-                if (thread != null)
-                {
-                    thread.Abort();
-                    thread.Join();
-                    thread = null;
-                }
-            }
+            executor.Dispose();
         }
 
         private void ListBackupLocations()
@@ -65,11 +47,11 @@ namespace DasBackupTool.Engine
                 localFiles.Clear();
                 if (Settings.Default.BackupLocations != null)
                 {
-                    foreach (BackupLocation backupLocation in Settings.Default.BackupLocations)
+                    foreach (BackupLocation backupLocation in Settings.Default.BackupLocations.IncludedLocations)
                     {
                         try
                         {
-                            if (DasBackupTool.Util.File.IsDirectory(backupLocation.Path))
+                            if (backupLocation.IsDirectory)
                             {
                                 ListDirectory(new DirectoryInfo(backupLocation.Path));
                             }
@@ -113,8 +95,8 @@ namespace DasBackupTool.Engine
 
         private void ListFile(FileInfo file)
         {
-            localFiles.Add(file.FullName, GetFileAttributes(file));
-            if (localFiles.Count >= 1000)
+            localFiles.Add(file.FullName, new File.Attributes(file.Length, file.LastWriteTimeUtc, null, (file.Attributes & FileAttributes.Archive) == FileAttributes.Archive));
+            if (localFiles.Count == 1000)
             {
                 CommitFiles();
             }
@@ -124,11 +106,6 @@ namespace DasBackupTool.Engine
         {
             files.AddLocalFiles(localFiles);
             localFiles.Clear();
-        }
-
-        private DasBackupTool.Model.FileAttributes GetFileAttributes(FileInfo file)
-        {
-            return new DasBackupTool.Model.FileAttributes(file.Length, file.LastWriteTimeUtc, null, (file.Attributes & System.IO.FileAttributes.Archive) == System.IO.FileAttributes.Archive);
         }
 
         private void SettingsChanged(object sender, PropertyChangedEventArgs e)
