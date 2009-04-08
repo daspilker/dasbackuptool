@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using DasBackupTool.Model;
 using DasBackupTool.Engine;
+using DasBackupTool.Model;
+using DasBackupTool.Util;
 
 namespace DasBackupTool.Ui
 {
@@ -30,6 +22,8 @@ namespace DasBackupTool.Ui
 
             InitializeComponent();
             DataContext = this;
+
+            BackupProgress.PropertyChanged += BackupProgressChanged;
         }
 
         public BackupProgress BackupProgress
@@ -52,7 +46,7 @@ namespace DasBackupTool.Ui
         private void ConfigureBucketExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             BucketConfigurationWindow bucketConfigurationWindow = new BucketConfigurationWindow();
-            bucketConfigurationWindow.Owner = this;            
+            bucketConfigurationWindow.Owner = this;
             bucketConfigurationWindow.ShowDialog();
         }
 
@@ -64,6 +58,11 @@ namespace DasBackupTool.Ui
         private void BackupExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             backupEngine.Run();
+        }
+
+        private void BackupProgressChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Dispatcher.Invoke(new DispatcherInvokeNoResultHandler(CommandManager.InvalidateRequerySuggested));
         }
     }
 }

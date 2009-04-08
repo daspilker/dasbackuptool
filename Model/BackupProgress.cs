@@ -12,6 +12,14 @@ namespace DasBackupTool.Model
         public BackupState State
         {
             get { return state; }
+            set
+            {
+                if (state != value)
+                {
+                    state = value;
+                    NotifyPropertyChanged("State");
+                }
+            }
         }
 
         public string StatusMessage
@@ -48,7 +56,7 @@ namespace DasBackupTool.Model
                     {
                         throw new InvalidOperationException();
                     }
-                    state = BackupState.Listing;
+                    State = BackupState.Listing;
                     actions.Add(action);
                 }
                 else
@@ -70,7 +78,7 @@ namespace DasBackupTool.Model
                 actions.Remove(action);
                 if (actions.Count == 0)
                 {
-                    state = BackupState.Idle;
+                    State = BackupState.Idle;
                 }
             }
             NotifyPropertyChanged("StatusMessage");
