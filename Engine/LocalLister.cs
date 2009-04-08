@@ -40,7 +40,7 @@ namespace DasBackupTool.Engine
 
         private void ListBackupLocations()
         {
-            backupProgress.AddStatus(BackupStatus.ListingLocal);
+            backupProgress.EnterAction(BackupAction.ListingLocal);
             try
             {
                 files.RemoveLocalFiles();
@@ -70,7 +70,7 @@ namespace DasBackupTool.Engine
             }
             finally
             {
-                backupProgress.RemoveStatus(BackupStatus.ListingLocal);
+                backupProgress.ExitAction(BackupAction.ListingLocal);
             }
         }
 

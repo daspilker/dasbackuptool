@@ -25,7 +25,7 @@ namespace DasBackupTool.Engine
         {
             queue.Run();
             queue.Enqueue(Backup, null);
-            backupProgress.AddStatus(BackupStatus.RunningBackup);
+            backupProgress.EnterAction(BackupAction.RunningBackup);
         }
 
         public void Dispose()

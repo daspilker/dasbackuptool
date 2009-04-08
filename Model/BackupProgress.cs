@@ -1,47 +1,77 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace DasBackupTool.Model
 {
     public class BackupProgress : INotifyPropertyChanged
     {
-        private BackupStatus status;
-        private object statusLock = new object();
+        private BackupState state = BackupState.Startup;
+        private ICollection<BackupAction> actions = new LinkedList<BackupAction>();
+
+        public BackupState State
+        {
+            get { return state; }
+        }
 
         public string StatusMessage
         {
-            get {
+            get
+            {
                 string message = "";
-                if ((status & BackupStatus.ListingBucket) == BackupStatus.ListingBucket)
+                foreach (BackupAction action in actions)
                 {
-                    message += "listing remote files, ";
+                    switch (action)
+                    {
+                        case BackupAction.ListingBucket:
+                            message += "listing remote files, ";
+                            break;
+                        case BackupAction.ListingLocal:
+                            message += "listing local files, ";
+                            break;
+                        case BackupAction.RunningBackup:
+                            message += "running backup, ";
+                            break;
+                    }
                 }
-                if ((status & BackupStatus.ListingLocal) == BackupStatus.ListingLocal)
-                {
-                    message += "listing local files, ";
-                }
-                if ((status & BackupStatus.RunningBackup) == BackupStatus.RunningBackup)
-                {
-                    message += "running backup, ";
-                }
-                return message.Substring(0, message.Length-2);
+                return message.Substring(0, message.Length - 2);
             }
         }
 
-        public void AddStatus(BackupStatus status)
+        public void EnterAction(BackupAction action)
         {
-            lock (statusLock)
+            lock (actions)
             {
-                this.status |= status;
+                if (action == BackupAction.ListingLocal || action == BackupAction.ListingBucket)
+                {
+                    if (state == BackupState.Backup)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    state = BackupState.Listing;
+                    actions.Add(action);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
             }
             NotifyPropertyChanged("StatusMessage");
         }
 
-        public void RemoveStatus(BackupStatus status)
+        public void ExitAction(BackupAction action)
         {
-            lock (statusLock)
+            lock (actions)
             {
-                this.status &= ~status;
+                if (!actions.Contains(action))
+                {
+                    throw new InvalidOperationException();
+                }
+                actions.Remove(action);
+                if (actions.Count == 0)
+                {
+                    state = BackupState.Idle;
+                }
             }
             NotifyPropertyChanged("StatusMessage");
         }
@@ -57,6 +87,6 @@ namespace DasBackupTool.Model
         }
     }
 
-    [Flags]
-    public enum BackupStatus { Done, ListingBucket, ListingLocal, RunningBackup }
+    public enum BackupAction { ListingBucket, ListingLocal, RunningBackup }
+    public enum BackupState { Startup, Listing, Idle, Backup }
 }

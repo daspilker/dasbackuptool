@@ -32,9 +32,14 @@ namespace DasBackupTool.Ui
             DataContext = this;
         }
 
+        public BackupProgress BackupProgress
+        {
+            get { return (BackupProgress)GetValue(BackupProgressProperty); }
+        }
+
         private void ConfigureCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = true;
+            e.CanExecute = BackupProgress.State != BackupState.Backup;
         }
 
         private void SelectBackupLocationsExecuted(object sender, ExecutedRoutedEventArgs e)
@@ -53,7 +58,7 @@ namespace DasBackupTool.Ui
 
         private void BackupCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = true;
+            e.CanExecute = BackupProgress.State == BackupState.Idle;
         }
 
         private void BackupExecuted(object sender, ExecutedRoutedEventArgs e)

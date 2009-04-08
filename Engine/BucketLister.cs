@@ -37,7 +37,7 @@ namespace DasBackupTool.Engine
 
         private void ListBucket()
         {
-            backupProgress.AddStatus(BackupStatus.ListingBucket);
+            backupProgress.EnterAction(BackupAction.ListingBucket);
             try
             {
                 files.RemoveRemoteFiles();
@@ -66,7 +66,7 @@ namespace DasBackupTool.Engine
             }
             finally
             {
-                backupProgress.RemoveStatus(BackupStatus.ListingBucket);
+                backupProgress.ExitAction(BackupAction.ListingBucket);
             }
         }
 
