@@ -31,6 +31,11 @@ namespace DasBackupTool.Ui
             get { return (BackupProgress)GetValue(BackupProgressProperty); }
         }
 
+        public Files Files
+        {
+            get { return (Files)GetValue(FilesProperty); }
+        }
+
         private void ConfigureCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = BackupProgress.State != BackupState.Backup;
@@ -48,6 +53,18 @@ namespace DasBackupTool.Ui
             BucketConfigurationWindow bucketConfigurationWindow = new BucketConfigurationWindow();
             bucketConfigurationWindow.Owner = this;
             bucketConfigurationWindow.ShowDialog();
+        }
+
+        private void ViewDetailsCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void ViewDetailsExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            DetailWindow detailWindow = new DetailWindow(Files);
+            detailWindow.Owner = this;
+            detailWindow.ShowDialog();
         }
 
         private void BackupCanExecute(object sender, CanExecuteRoutedEventArgs e)

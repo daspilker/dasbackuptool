@@ -42,7 +42,7 @@ namespace DasBackupTool.Model
                             break;
                     }
                 }
-                return message.Substring(0, message.Length - 2);
+                return message.Length == 0 ? "" : message.Substring(0, message.Length - 2);
             }
         }
 

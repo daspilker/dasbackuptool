@@ -11,7 +11,7 @@ namespace DasBackupTool.Model
     [TypeConverter(typeof(BackupLocationsTypeConverter))]
     public class BackupLocations : IEnumerable<BackupLocation>
     {
-        private ICollection<BackupLocation> backupLocations = new HashSet<BackupLocation>();
+        private IDictionary<string, BackupLocation> backupLocations = new Dictionary<string, BackupLocation>();
 
         public BackupLocations() { }
 
@@ -19,28 +19,33 @@ namespace DasBackupTool.Model
         {
             foreach (BackupLocation backupLocation in backupLocations)
             {
-                this.backupLocations.Add(backupLocation);
+                this.backupLocations.Add(backupLocation.Path, backupLocation);
             }
         }
 
         public IEnumerable<BackupLocation> IncludedLocations
         {
-            get { return backupLocations.Where(b => !b.Excluded); }
+            get { return backupLocations.Values.Where(b => !b.Excluded); }
         }
 
         IEnumerator<BackupLocation> IEnumerable<BackupLocation>.GetEnumerator()
         {
-            return backupLocations.GetEnumerator();
+            return backupLocations.Values.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return backupLocations.GetEnumerator();
+            return backupLocations.Values.GetEnumerator();
         }
 
         public void AddBackupLocation(string path, bool excluded)
         {
-            backupLocations.Add(new BackupLocation(path, excluded));
+            backupLocations.Add(path, new BackupLocation(path, excluded));
+        }
+
+        public bool IsExcluded(string path)
+        {
+            return backupLocations.ContainsKey(path) && backupLocations[path].Excluded;
         }
     }
 
@@ -78,14 +83,6 @@ namespace DasBackupTool.Model
                     excluded = value;
                     NotifyPropertyChanged("Excluded");
                 }
-            }
-        }
-
-        public bool IsDirectory
-        {
-            get
-            {
-                return (System.IO.File.GetAttributes(path) & System.IO.FileAttributes.Directory) == System.IO.FileAttributes.Directory;
             }
         }
 

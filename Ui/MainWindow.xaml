@@ -7,6 +7,7 @@
 		<CommandBinding Command="ui:Commands.SelectBackupLocations" CanExecute="ConfigureCanExecute"  Executed="SelectBackupLocationsExecuted"/>
 		<CommandBinding Command="ui:Commands.ConfigureBucket" CanExecute="ConfigureCanExecute" Executed="ConfigureBucketExecuted"/>
 		<CommandBinding Command="ui:Commands.Backup" CanExecute="BackupCanExecute" Executed="BackupExecuted"/>
+		<CommandBinding Command="ui:Commands.ViewDetails" CanExecute="ViewDetailsCanExecute" Executed="ViewDetailsExecuted"/>
 	</Window.CommandBindings>
 	<Window.Resources>
 		<ui:FileCountValueConverter x:Key="FileCountValueConverter"/>
@@ -22,7 +23,7 @@
 		<Grid Margin="12,12,12,12">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
-				<ColumnDefinition MinWidth="120"/>
+				<ColumnDefinition MinWidth="150"/>
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
@@ -69,13 +70,14 @@
 			<Button Grid.Column="2" Grid.Row="6" Grid.RowSpan="5" VerticalAlignment="Bottom" Command="ui:Commands.ConfigureBucket" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
 			<Label Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2" FontWeight="Bold">Difference</Label>
 			<Label Grid.Column="0" Grid.Row="14" HorizontalAlignment="Right">New files:</Label>
-			<Label Grid.Column="1" Grid.Row="14" Content="{Binding Path=Files.NewFileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="14" Content="{Binding Path=Files.LocalRepositoryStatistics.NewFileCount, Converter={StaticResource FileCountValueConverter}}"/>
 			<Label Grid.Column="0" Grid.Row="16" HorizontalAlignment="Right">Updated files:</Label>
-			<Label Grid.Column="1" Grid.Row="16" Content="{Binding Path=Files.UpdatedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="16" Content="{Binding Path=Files.LocalRepositoryStatistics.UpdatedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
 			<Label Grid.Column="0" Grid.Row="18" HorizontalAlignment="Right">Deleted Files:</Label>
-			<Label Grid.Column="1" Grid.Row="18" Content="{Binding Path=Files.DeletedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="18" Content="{Binding Path=Files.LocalRepositoryStatistics.DeletedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
 			<Label Grid.Column="0" Grid.Row="20" HorizontalAlignment="Right">Transfer file size:</Label>
-			<Label Grid.Column="1" Grid.Row="20" Content="{Binding Path=Files.TransferFileSize, Converter={StaticResource FileSizeValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="20" Content="{Binding Path=Files.LocalRepositoryStatistics.TransferFileSize, Converter={StaticResource FileSizeValueConverter}}"/>
+			<Button Grid.Column="2" Grid.Row="12" Grid.RowSpan="9" VerticalAlignment="Bottom" Command="ui:Commands.ViewDetails" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
 			<Label Grid.Column="0" Grid.Row="22" Grid.ColumnSpan="2" FontWeight="Bold">Progress</Label>
 			<Label Grid.Column="0" Grid.Row="24" HorizontalAlignment="Right">Transfered files:</Label>
 			<Label Grid.Column="1" Grid.Row="24" Content="{Binding Path=Files.TransferedFileCount, Converter={StaticResource FileCountValueConverter}}"/>

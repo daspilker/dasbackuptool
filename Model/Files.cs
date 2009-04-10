@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 
 namespace DasBackupTool.Model
 {
@@ -9,13 +12,10 @@ namespace DasBackupTool.Model
     {
         private RepositoryStatistics localRepositoryStatistics = new RepositoryStatistics();
         private RepositoryStatistics remoteRepositoryStatistics = new RepositoryStatistics();
-        private long newFileCount;
-        private long updatedFileCount;
-        private long deletedFileCount;
-        private long transferFileSize;
         private long transferedFileCount;
         private long transferedData;
         private IDictionary<String, File> files = new Dictionary<String, File>();
+        private ICollection<BackupLocationStatistics> backupLocationStatistics = new ObservableCollection<BackupLocationStatistics>();
 
         public RepositoryStatistics LocalRepositoryStatistics
         {
@@ -27,56 +27,9 @@ namespace DasBackupTool.Model
             get { return remoteRepositoryStatistics; }
         }
 
-        public long NewFileCount
+        public ICollection<BackupLocationStatistics> BackupLocationStatistics
         {
-            get { return newFileCount; }
-            set
-            {
-                if (newFileCount != value)
-                {
-                    newFileCount = value;
-                    NotifyPropertyChanged("NewFileCount");
-                }
-            }
-        }
-
-        public long UpdatedFileCount
-        {
-            get { return updatedFileCount; }
-            set
-            {
-                if (updatedFileCount != value)
-                {
-                    updatedFileCount = value;
-                    NotifyPropertyChanged("UpdatedFileCount");
-                }
-            }
-        }
-
-        public long DeletedFileCount
-        {
-            get { return deletedFileCount; }
-            set
-            {
-                if (deletedFileCount != value)
-                {
-                    deletedFileCount = value;
-                    NotifyPropertyChanged("DeletedFileCount");
-                }
-            }
-        }
-
-        public long TransferFileSize
-        {
-            get { return transferFileSize; }
-            set
-            {
-                if (transferFileSize != value)
-                {
-                    transferFileSize = value;
-                    NotifyPropertyChanged("TransferFileSize");
-                }
-            }
+            get { return backupLocationStatistics; }
         }
 
         public long TransferedFileCount
@@ -195,6 +148,19 @@ namespace DasBackupTool.Model
             UpdateStatistics();
         }
 
+        public void TrackStatisticsFor(IEnumerable<BackupLocation> backupLocations)
+        {
+            lock (files)
+            {
+                backupLocationStatistics.Clear();
+                foreach (BackupLocation backupLocation in backupLocations)
+                {
+                    backupLocationStatistics.Add(new BackupLocationStatistics(backupLocation.Path));
+                }
+            }
+            UpdateStatistics();
+        }
+
         private File GetFile(string path)
         {
             lock (files)
@@ -215,21 +181,34 @@ namespace DasBackupTool.Model
 
         private void UpdateStatistics()
         {
+            DateTime start = DateTime.Now;            
             lock (files)
             {
                 IEnumerable<File> localFiles = files.Values.Where(f => f.LocalAttributes != null);
-                IEnumerable<File> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
-                localRepositoryStatistics.FileCount = localFiles.Count();
-                localRepositoryStatistics.TotalFileSize = localFiles.Sum(f => f.LocalAttributes.Size);
-                remoteRepositoryStatistics.FileCount = remoteFiles.Count();
-                remoteRepositoryStatistics.TotalFileSize = remoteFiles.Sum(f => f.RemoteAttributes.Size);
                 IEnumerable<File> newFiles = files.Values.Where(f => f.Status == FileStatus.New);
                 IEnumerable<File> updatedFiles = files.Values.Where(f => f.Status == FileStatus.Updated);
-                NewFileCount = newFiles.Count();
-                UpdatedFileCount = updatedFiles.Count();
-                DeletedFileCount = files.Values.Count(f => f.Status == FileStatus.Deleted);
-                TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
+                localRepositoryStatistics.FileCount = localFiles.Count();
+                localRepositoryStatistics.TotalFileSize = localFiles.Sum(f => f.LocalAttributes.Size);
+                localRepositoryStatistics.NewFileCount = newFiles.Count();
+                localRepositoryStatistics.UpdatedFileCount = updatedFiles.Count();
+                localRepositoryStatistics.DeletedFileCount = files.Values.Count(f => f.Status == FileStatus.Deleted);
+                localRepositoryStatistics.TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
+                IEnumerable<File> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
+                remoteRepositoryStatistics.FileCount = remoteFiles.Count();
+                remoteRepositoryStatistics.TotalFileSize = remoteFiles.Sum(f => f.RemoteAttributes.Size);
+                foreach (BackupLocationStatistics statistics in backupLocationStatistics)
+                {
+                    IEnumerable<File> includedFiles = files.Values.Where(f => f.LocalAttributes != null && f.IsBelow(statistics.Path));
+                    statistics.FileCount = includedFiles.Count();
+                    statistics.TotalFileSize = includedFiles.Sum(f => f.LocalAttributes.Size);
+                    statistics.NewFileCount = includedFiles.Where(f => f.Status == FileStatus.New).Count();
+                    statistics.UpdatedFileCount = includedFiles.Where(f => f.Status == FileStatus.Updated).Count();
+                    statistics.DeletedFileCount = files.Values.Count(f => f.IsBelow(statistics.Path) && f.Status == FileStatus.Deleted);
+                    statistics.TransferFileSize = includedFiles.Where(f => f.Status == FileStatus.New || f.Status == FileStatus.Updated).Sum(f => f.LocalAttributes.Size);
+                }
             }
+            DateTime end = DateTime.Now;
+            Debug.Print("update: " + (end - start));
         }
 
         private void NotifyPropertyChanged(string property)
@@ -245,6 +224,10 @@ namespace DasBackupTool.Model
     {
         private long fileCount;
         private long totalFileSize;
+        private long newFileCount;
+        private long updatedFileCount;
+        private long deletedFileCount;
+        private long transferFileSize;
 
         public long FileCount
         {
@@ -272,6 +255,58 @@ namespace DasBackupTool.Model
             }
         }
 
+        public long NewFileCount
+        {
+            get { return newFileCount; }
+            set
+            {
+                if (newFileCount != value)
+                {
+                    newFileCount = value;
+                    NotifyPropertyChanged("NewFileCount");
+                }
+            }
+        }
+
+        public long UpdatedFileCount
+        {
+            get { return updatedFileCount; }
+            set
+            {
+                if (updatedFileCount != value)
+                {
+                    updatedFileCount = value;
+                    NotifyPropertyChanged("UpdatedFileCount");
+                }
+            }
+        }
+
+        public long DeletedFileCount
+        {
+            get { return deletedFileCount; }
+            set
+            {
+                if (deletedFileCount != value)
+                {
+                    deletedFileCount = value;
+                    NotifyPropertyChanged("DeletedFileCount");
+                }
+            }
+        }
+
+        public long TransferFileSize
+        {
+            get { return transferFileSize; }
+            set
+            {
+                if (transferFileSize != value)
+                {
+                    transferFileSize = value;
+                    NotifyPropertyChanged("TransferFileSize");
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(string property)
@@ -280,6 +315,21 @@ namespace DasBackupTool.Model
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(property));
             }
+        }
+    }
+
+    public class BackupLocationStatistics : RepositoryStatistics
+    {
+        private string path;
+
+        public BackupLocationStatistics(string path)
+        {
+            this.path = path;
+        }
+
+        public string Path
+        {
+            get { return path; }
         }
     }
 
@@ -315,7 +365,7 @@ namespace DasBackupTool.Model
                     }
                     else
                     {
-                        return localAttributes.Archive.Value || localAttributes.Size != remoteAttributes.Size ? FileStatus.Updated : FileStatus.NotModified;
+                        return localAttributes.Size != remoteAttributes.Size || localAttributes.ModificationDate.CompareTo(remoteAttributes.ModificationDate) > 0 ? FileStatus.Updated : FileStatus.NotModified;
                     }
                 }
             }
@@ -331,6 +381,11 @@ namespace DasBackupTool.Model
         {
             get { return remoteAttributes; }
             set { remoteAttributes = value; }
+        }
+
+        public bool IsBelow(string path)
+        {
+            return this.path == path || this.path.StartsWith(path + "\\");
         }
 
         public class Attributes

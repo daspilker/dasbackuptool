@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DasBackupTool.Model;
+using DasBackupTool.Util;
 
 namespace DasBackupTool.Ui
 {
@@ -35,6 +36,7 @@ namespace DasBackupTool.Ui
     public class FileSizeValueConverter : IValueConverter
     {
         private NumberFormatInfo numberFormat;
+        private bool showUnit = true;
 
         public FileSizeValueConverter()
         {
@@ -42,9 +44,15 @@ namespace DasBackupTool.Ui
             numberFormat.NumberDecimalDigits = 0;
         }
 
+        public  bool ShowUnit
+        {
+            get { return showUnit; }
+            set { showUnit = value; }
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ((long)value).ToString("n", numberFormat) + " bytes";
+            return ((long)value).ToString("n", numberFormat) + (showUnit ? " bytes" : "");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -66,7 +74,7 @@ namespace DasBackupTool.Ui
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == null ? null : ((BackupLocation)value).IsDirectory ? directoryImageSource : fileImageSource;
+            return value == null ? null : FileUtils.IsDirectory((string)value) ? directoryImageSource : fileImageSource;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

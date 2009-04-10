@@ -8,6 +8,7 @@ namespace DasBackupTool.Ui
         public static RoutedUICommand ConfigureBucket;
         public static RoutedUICommand RemoveBackupLocation;
         public static RoutedUICommand SelectBackupLocations;
+        public static RoutedUICommand ViewDetails;
 
         static Commands()
         {
@@ -15,6 +16,7 @@ namespace DasBackupTool.Ui
             ConfigureBucket = new RoutedUICommand("Configure...", "ConfigureBucket", typeof(Commands));
             RemoveBackupLocation = new RoutedUICommand("Remove", "RemoveBackupLocation", typeof(Commands));
             SelectBackupLocations = new RoutedUICommand("Select...", "SelectBackupLocations", typeof(Commands));
+            ViewDetails = new RoutedUICommand("Details...", "ViewDetails", typeof(Commands));
         }
     }
 }

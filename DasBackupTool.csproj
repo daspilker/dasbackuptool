@@ -85,6 +85,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Ui\DetailWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ui\MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -127,6 +131,9 @@
       <DependentUpon>BucketConfigurationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\Commands.cs" />
+    <Compile Include="Ui\DetailWindow.xaml.cs">
+      <DependentUpon>DetailWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Ui\ListViewBehaviors.cs" />
     <Compile Include="Ui\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -135,6 +142,7 @@
     <Compile Include="Util\AbortableTaskExecutor.cs" />
     <Compile Include="Util\BackgroundTaskQueue.cs" />
     <Compile Include="Util\Dispatcher.cs" />
+    <Compile Include="Util\FileUtils.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

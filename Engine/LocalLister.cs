@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
 using DasBackupTool.Util;
@@ -47,11 +48,12 @@ namespace DasBackupTool.Engine
                 localFiles.Clear();
                 if (Settings.Default.BackupLocations != null)
                 {
+                    files.TrackStatisticsFor(Settings.Default.BackupLocations.IncludedLocations);
                     foreach (BackupLocation backupLocation in Settings.Default.BackupLocations.IncludedLocations)
                     {
                         try
                         {
-                            if (backupLocation.IsDirectory)
+                            if (FileUtils.IsDirectory(backupLocation.Path))
                             {
                                 ListDirectory(new DirectoryInfo(backupLocation.Path));
                             }
@@ -80,22 +82,28 @@ namespace DasBackupTool.Engine
             {
                 foreach (DirectoryInfo subDirectory in directory.GetDirectories())
                 {
-                    ListDirectory(subDirectory);
+                    if (!Settings.Default.BackupLocations.IsExcluded(subDirectory.FullName))
+                    {
+                        ListDirectory(subDirectory);
+                    }
                 }
                 foreach (FileInfo file in directory.GetFiles())
                 {
-                    ListFile(file);
+                    if (!Settings.Default.BackupLocations.IsExcluded(file.FullName))
+                    {
+                        ListFile(file);
+                    }
                 }
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
-                // todo
+                MessageBox.Show(e.Message);
             }
         }
 
         private void ListFile(FileInfo file)
         {
-            localFiles.Add(file.FullName, new File.Attributes(file.Length, file.LastWriteTimeUtc, null, (file.Attributes & FileAttributes.Archive) == FileAttributes.Archive));
+            localFiles.Add(file.FullName, new File.Attributes(file.Length, file.LastWriteTimeUtc, null, FileUtils.IsArchive(file.FullName)));
             if (localFiles.Count == 1000)
             {
                 CommitFiles();
