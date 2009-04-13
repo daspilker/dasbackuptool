@@ -22,7 +22,7 @@ namespace DasBackupTool.Ui
 
         private void SettingsChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "FileStatusFilterUpdated" || e.PropertyName == "FileStatusFilterNew" || e.PropertyName == "FileStatusFilterDeleted" || e.PropertyName == "FileStatusFilterNotModified")
+            if (e.PropertyName == "FileStatusFilterUpdated" || e.PropertyName == "FileStatusFilterNew" || e.PropertyName == "FileStatusFilterDeleted" || e.PropertyName == "FileStatusFilterNotModified" || e.PropertyName == "FileStatusFilterExcluded")
             {
                 ((CollectionViewSource)Resources["Files"]).View.Refresh();
             }
@@ -31,7 +31,7 @@ namespace DasBackupTool.Ui
         private void FilesFilter(object sender, FilterEventArgs e)
         {
             File file = (File)e.Item;
-            e.Accepted = (file.Status == FileStatus.New && Settings.Default.FileStatusFilterNew) || (file.Status == FileStatus.Updated && Settings.Default.FileStatusFilterUpdated) || (file.Status == FileStatus.Deleted && Settings.Default.FileStatusFilterDeleted) || (file.Status == FileStatus.NotModified && Settings.Default.FileStatusFilterNotModified);
+            e.Accepted = (file.Status == FileStatus.New && Settings.Default.FileStatusFilterNew) || (file.Status == FileStatus.Updated && Settings.Default.FileStatusFilterUpdated) || (file.Status == FileStatus.Deleted && Settings.Default.FileStatusFilterDeleted) || (file.Status == FileStatus.NotModified && Settings.Default.FileStatusFilterNotModified) || (file.Status == FileStatus.Excluded && Settings.Default.FileStatusFilterExcluded);
         }
     }
 }

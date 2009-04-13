@@ -11,6 +11,7 @@ namespace DasBackupTool.Ui
     public partial class BackupLocationSelectionWindow : Window
     {
         public static readonly DependencyProperty BackupLocationsProperty = DependencyProperty.Register("BackupLocations", typeof(ObservableCollection<BackupLocation>), typeof(BackupLocationSelectionWindow));
+        public static readonly DependencyProperty ExcludedFilesPatternProperty = DependencyProperty.Register("ExcludedFilesPattern", typeof(string), typeof(BackupLocationSelectionWindow));
 
         public BackupLocationSelectionWindow()
         {
@@ -23,6 +24,7 @@ namespace DasBackupTool.Ui
                 }
             }
             SetValue(BackupLocationsProperty, backupLocations);
+            SetValue(ExcludedFilesPatternProperty, Settings.Default.ExcludedFilesRegularExpression);
 
             InitializeComponent();
             DataContext = this;
@@ -45,6 +47,7 @@ namespace DasBackupTool.Ui
         private void OKButtonClick(object sender, RoutedEventArgs e)
         {
             Settings.Default.BackupLocations = new BackupLocations(BackupLocations);
+            Settings.Default.ExcludedFilesRegularExpression = (string)GetValue(ExcludedFilesPatternProperty);
             Settings.Default.Save();
             this.Close();
         }

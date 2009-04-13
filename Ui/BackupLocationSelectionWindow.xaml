@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
     xmlns:ui="clr-namespace:DasBackupTool.Ui"
-    Title="Backup Location Selection" SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    Title="Backup Location Selection" SizeToContent="WidthAndHeight" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
 	<Window.CommandBindings>
 		<CommandBinding Command="ui:Commands.RemoveBackupLocation" CanExecute="RemoveBackupLocationCanExecute"  Executed="RemoveBackupLocationExecuted"/>
 	</Window.CommandBindings>
@@ -21,17 +21,22 @@
 
 	<Grid Margin="12,12,12,12">
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition MinWidth="300"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition MinWidth="180"/>
 			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
 			<RowDefinition MinHeight="180"/>
+			<RowDefinition Height="12"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="12"/>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Column="0" Grid.Row="0">Drop new backup locations here:</TextBlock>
-		<ListView Name="BackupLocationsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,6,0,12" ItemsSource="{Binding Source={StaticResource BackupLocations}}" AllowDrop="True" Drop="BackupLocationsListBoxDrop" ui:ListViewBehaviors.IsAutoUpdatingColumnWidths="true">
+		<TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">Drop new backup locations here:</TextBlock>
+		<ListView Name="BackupLocationsListView" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" ItemsSource="{Binding Source={StaticResource BackupLocations}}" AllowDrop="True" Drop="BackupLocationsListBoxDrop" ui:ListViewBehaviors.IsAutoUpdatingColumnWidths="true">
 			<ListView.ItemContainerStyle>
 				<Style TargetType="ListViewItem">
 					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -66,7 +71,9 @@
 				</ContextMenu>
 			</ListView.ContextMenu>
 		</ListView>
-		<StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
+		<Label Grid.Column="0" Grid.Row="4">Excluded files pattern:</Label>
+		<TextBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" Text="{Binding Path=ExcludedFilesPattern}"/>
+		<StackPanel Grid.Column="2" Grid.Row="6" Orientation="Horizontal">
 			<Button Margin="0,0,6,0" IsDefault="True" Click="OKButtonClick">OK</Button>
 			<Button IsCancel="True">Cancel</Button>
 		</StackPanel>

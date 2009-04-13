@@ -69,6 +69,7 @@
 				<CheckBox Margin="0,6,0,0" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=FileStatusFilterUpdated}">Updated</CheckBox>
 				<CheckBox Margin="0,6,0,0" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=FileStatusFilterDeleted}">Deleted</CheckBox>
 				<CheckBox Margin="0,6,0,0" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=FileStatusFilterNotModified}">Not Modified</CheckBox>
+				<CheckBox Margin="0,6,0,0" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=FileStatusFilterExcluded}">Excluded</CheckBox>
 			</StackPanel>
 		</Expander>
 		<Button Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom" IsDefault="True" IsCancel="True">Close</Button>

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
+using DasBackupTool.Properties;
 
 namespace DasBackupTool.Model
 {
@@ -108,7 +110,6 @@ namespace DasBackupTool.Model
             file.RemoteAttributes = file.LocalAttributes;
             if (file.LocalAttributes != null)
             {
-                file.LocalAttributes.Archive = false;
                 TransferedFileCount++;
                 TransferedData += file.LocalAttributes.Size;
             }
@@ -340,7 +341,8 @@ namespace DasBackupTool.Model
         public ICollection<File> Files
         {
             get { return files; }
-            set { 
+            set
+            {
                 files = value;
                 NotifyPropertyChanged("Files");
             }
@@ -363,6 +365,7 @@ namespace DasBackupTool.Model
     public class File
     {
         private string path;
+        private FileStatus status = FileStatus.NotModified;
         private Attributes localAttributes;
         private Attributes remoteAttributes;
 
@@ -378,41 +381,58 @@ namespace DasBackupTool.Model
 
         public FileStatus Status
         {
-            get
-            {
-                if (localAttributes == null)
-                {
-                    return remoteAttributes == null ? FileStatus.NotModified : FileStatus.Deleted;
-                }
-                else
-                {
-                    if (remoteAttributes == null)
-                    {
-                        return FileStatus.New;
-                    }
-                    else
-                    {
-                        return localAttributes.Size != remoteAttributes.Size || localAttributes.ModificationDate.CompareTo(remoteAttributes.ModificationDate) > 0 ? FileStatus.Updated : FileStatus.NotModified;
-                    }
-                }
-            }
+            get { return status; }
         }
 
         public Attributes LocalAttributes
         {
             get { return localAttributes; }
-            set { localAttributes = value; }
+            set
+            {
+                localAttributes = value;
+                UpdateStatus();
+            }
         }
 
         public Attributes RemoteAttributes
         {
             get { return remoteAttributes; }
-            set { remoteAttributes = value; }
+            set
+            {
+                remoteAttributes = value;
+                UpdateStatus();
+            }
         }
 
         public bool IsBelow(string path)
         {
             return this.path == path || this.path.StartsWith(path + "\\");
+        }
+
+        private void UpdateStatus()
+        {
+            if (localAttributes == null)
+            {
+                status = remoteAttributes == null ? FileStatus.NotModified : FileStatus.Deleted;
+            }
+            else
+            {
+                if (new Regex(Settings.Default.ExcludedFilesRegularExpression).IsMatch(path))
+                {
+                    status = remoteAttributes != null ? FileStatus.Deleted : FileStatus.Excluded;
+                }
+                else
+                {
+                    if (remoteAttributes == null)
+                    {
+                        status = FileStatus.New;
+                    }
+                    else
+                    {
+                        status = localAttributes.Size != remoteAttributes.Size || localAttributes.ModificationDate.CompareTo(remoteAttributes.ModificationDate) > 0 ? FileStatus.Updated : FileStatus.NotModified;
+                    }
+                }
+            }
         }
 
         public class Attributes
@@ -448,10 +468,9 @@ namespace DasBackupTool.Model
             public bool? Archive
             {
                 get { return archive; }
-                set { archive = value; }
             }
         }
     }
 
-    public enum FileStatus { New, Updated, Deleted, NotModified };
+    public enum FileStatus { New, Updated, Deleted, NotModified, Excluded };
 }

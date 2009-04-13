@@ -92,5 +92,29 @@ namespace DasBackupTool.Properties {
                 this["FileStatusFilterNotModified"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(".*\\\\desktop.ini|.*\\\\Thumbs.db")]
+        public string ExcludedFilesRegularExpression {
+            get {
+                return ((string)(this["ExcludedFilesRegularExpression"]));
+            }
+            set {
+                this["ExcludedFilesRegularExpression"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FileStatusFilterExcluded {
+            get {
+                return ((bool)(this["FileStatusFilterExcluded"]));
+            }
+            set {
+                this["FileStatusFilterExcluded"] = value;
+            }
+        }
     }
 }

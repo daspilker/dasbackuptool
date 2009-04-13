@@ -22,7 +22,7 @@ namespace DasBackupTool.Ui
         private void OkButtonClick(object sender, RoutedEventArgs e)
         {
             Settings.Default.Bucket = new Bucket(AccessKeyIdTextBox.Text, SecretAccessKeyPasswordBox.Password, BucketTextBox.Text);
-            Settings.Default.Save();
+            Settings.Default.Save();           
             this.Close();
         }
     }
