@@ -25,5 +25,22 @@ namespace DasBackupTool.Ui
             InitializeComponent();
             DataContext = this;
         }
+
+        private void ViewBackupLocationDetailsCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = BackupLocationsListView.SelectedItems.Count > 0;
+        }
+
+        private void ViewBackupLocationDetailsExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            BackupLocationDetailWindow backupLocationDetailWindow = new BackupLocationDetailWindow((BackupLocationStatistics)BackupLocationsListView.SelectedItem);
+            backupLocationDetailWindow.Owner = this;
+            backupLocationDetailWindow.ShowDialog();
+        }
+
+        private void BackupLocationsListViewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Commands.ViewBackupLocationDetails.Execute(null, null);
+        }
     }
 }

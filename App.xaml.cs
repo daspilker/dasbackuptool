@@ -12,6 +12,7 @@ namespace DasBackupTool
         private LocalLister localLister;
         private BucketLister remoteLister;
         private BackupEngine backupEngine;
+        private StatisticsUpdater statisticsUpdater;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -21,11 +22,8 @@ namespace DasBackupTool
             remoteLister.Run();
             localLister = new LocalLister(files, backupProgress);
             localLister.Run();
-
-            //DasBackupTool.Properties.Settings.Default.BackupLocations = new BackupLocations();
-            //DasBackupTool.Properties.Settings.Default.BackupLocations.AddBackupLocation(@"C:\Users\dspilker\Temp", false);
-            //DasBackupTool.Properties.Settings.Default.Save();
-
+            statisticsUpdater = new StatisticsUpdater(files);
+            statisticsUpdater.Run();
             backupEngine = new BackupEngine(files, backupProgress);
             
             MainWindow mainWindow = new MainWindow(files, backupProgress, backupEngine);
@@ -37,6 +35,7 @@ namespace DasBackupTool
             backupEngine.Dispose();
             remoteLister.Dispose();
             localLister.Dispose();
+            statisticsUpdater.Dispose();
 
             base.OnExit(e);
         }

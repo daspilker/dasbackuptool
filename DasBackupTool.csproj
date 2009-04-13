@@ -77,6 +77,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Ui\BackupLocationDetailWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ui\BackupLocationSelectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -102,6 +106,7 @@
     <Compile Include="Engine\BackupEngine.cs" />
     <Compile Include="Engine\BucketLister.cs" />
     <Compile Include="Engine\LocalLister.cs" />
+    <Compile Include="Engine\StatisticsUpdater.cs" />
     <Compile Include="Model\BackupProgress.cs" />
     <Compile Include="Model\BackupLocations.cs" />
     <Compile Include="Model\Bucket.cs" />
@@ -124,6 +129,9 @@
     <Compile Include="S3\S3.cs" />
     <Compile Include="S3\S3Exception.cs" />
     <Compile Include="S3\S3Helper.cs" />
+    <Compile Include="Ui\BackupLocationDetailWindow.xaml.cs">
+      <DependentUpon>BackupLocationDetailWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Ui\BackupLocationSelectionWindow.xaml.cs">
       <DependentUpon>BackupLocationSelectionWindow.xaml</DependentUpon>
     </Compile>

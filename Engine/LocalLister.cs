@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
@@ -41,6 +42,7 @@ namespace DasBackupTool.Engine
 
         private void ListBackupLocations()
         {
+            DateTime start = DateTime.Now;
             backupProgress.EnterAction(BackupAction.ListingLocal);
             try
             {
@@ -74,6 +76,8 @@ namespace DasBackupTool.Engine
             {
                 backupProgress.ExitAction(BackupAction.ListingLocal);
             }
+            DateTime end = DateTime.Now;
+            Debug.Print("locallister: " + (end - start));
         }
 
         private void ListDirectory(DirectoryInfo directory)

@@ -4,7 +4,10 @@
     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
     xmlns:ui="clr-namespace:DasBackupTool.Ui"
     Title="Detail View" SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
-	<Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="ui:Commands.ViewBackupLocationDetails" CanExecute="ViewBackupLocationDetailsCanExecute" Executed="ViewBackupLocationDetailsExecuted"/>
+    </Window.CommandBindings>
+    <Window.Resources>
 		<CollectionViewSource x:Key="BackupLocationStatistics" Source="{Binding Path=Files.BackupLocationStatistics}">
 			<CollectionViewSource.SortDescriptions>
 				<scm:SortDescription PropertyName="Path"/>
@@ -16,7 +19,7 @@
 	</Window.Resources>
 	
 	<StackPanel Margin="12,12,12,12">
-		<ListView MinHeight="150" ItemsSource="{Binding Source={StaticResource BackupLocationStatistics}}" ui:ListViewBehaviors.IsAutoUpdatingColumnWidths="true">
+		<ListView Name="BackupLocationsListView" MinHeight="150" ItemsSource="{Binding Source={StaticResource BackupLocationStatistics}}" ui:ListViewBehaviors.IsAutoUpdatingColumnWidths="true" SelectionMode="Single" MouseDoubleClick="BackupLocationsListViewMouseDoubleClick">
 			<ListView.ItemContainerStyle>
 				<Style TargetType="ListViewItem">
 					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -80,7 +83,12 @@
 					</GridView.Columns>
 				</GridView>
 			</ListView.View>
-		</ListView>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Command="ui:Commands.ViewBackupLocationDetails" Header="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+        </ListView>
 		<Button Margin="0,12,0,0" HorizontalAlignment="Right" IsDefault="True" IsCancel="True">Close</Button>
 	</StackPanel>
 </Window>
