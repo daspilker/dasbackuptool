@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using DasBackupTool.Model;
+using DasBackupTool.Properties;
 
 namespace DasBackupTool.Ui
 {
@@ -24,6 +16,22 @@ namespace DasBackupTool.Ui
 
             InitializeComponent();
             DataContext = this;
+
+            Settings.Default.PropertyChanged += SettingsChanged;
+        }
+
+        private void SettingsChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "FileStatusFilterUpdated" || e.PropertyName == "FileStatusFilterNew" || e.PropertyName == "FileStatusFilterDeleted" || e.PropertyName == "FileStatusFilterNotModified")
+            {
+                ((CollectionViewSource)Resources["Files"]).View.Refresh();
+            }
+        }
+
+        private void FilesFilter(object sender, FilterEventArgs e)
+        {
+            File file = (File)e.Item;
+            e.Accepted = (file.Status == FileStatus.New && Settings.Default.FileStatusFilterNew) || (file.Status == FileStatus.Updated && Settings.Default.FileStatusFilterUpdated) || (file.Status == FileStatus.Deleted && Settings.Default.FileStatusFilterDeleted) || (file.Status == FileStatus.NotModified && Settings.Default.FileStatusFilterNotModified);
         }
     }
 }

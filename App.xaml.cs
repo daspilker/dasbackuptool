@@ -2,6 +2,7 @@
 using DasBackupTool.Engine;
 using DasBackupTool.Model;
 using DasBackupTool.Ui;
+using DasBackupTool.Properties;
 
 namespace DasBackupTool
 {
@@ -36,6 +37,8 @@ namespace DasBackupTool
             remoteLister.Dispose();
             localLister.Dispose();
             statisticsUpdater.Dispose();
+
+            Settings.Default.Save();
 
             base.OnExit(e);
         }

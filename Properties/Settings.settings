@@ -8,5 +8,17 @@
     <Setting Name="Bucket" Type="DasBackupTool.Model.Bucket" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="FileStatusFilterNew" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="FileStatusFilterUpdated" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="FileStatusFilterDeleted" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="FileStatusFilterNotModified" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
