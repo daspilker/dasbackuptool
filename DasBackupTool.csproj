@@ -119,16 +119,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="S3\Bucket.cs" />
-    <Compile Include="S3\Credentials.cs" />
-    <Compile Include="S3\IBucket.cs" />
-    <Compile Include="S3\ICredentials.cs" />
-    <Compile Include="S3\IObject.cs" />
-    <Compile Include="S3\IS3.cs" />
-    <Compile Include="S3\Object.cs" />
-    <Compile Include="S3\S3.cs" />
-    <Compile Include="S3\S3Exception.cs" />
-    <Compile Include="S3\S3Helper.cs" />
+    <Compile Include="Aws\S3.cs" />
     <Compile Include="Ui\BackupLocationDetailWindow.xaml.cs">
       <DependentUpon>BackupLocationDetailWindow.xaml</DependentUpon>
     </Compile>

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
+using DasBackupTool.Aws;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
-using DasBackupTool.S3;
 using DasBackupTool.Util;
 
 namespace DasBackupTool.Engine
@@ -43,11 +43,11 @@ namespace DasBackupTool.Engine
                 files.RemoveRemoteFiles();
                 if (Settings.Default.Bucket != null)
                 {
-                    DasBackupTool.S3.Bucket bucket = new DasBackupTool.S3.Bucket(Settings.Default.Bucket.BucketName);
                     try
                     {
+                        S3 s3 = new S3(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey);
                         IDictionary<string, File.Attributes> remoteFiles = new Dictionary<string, File.Attributes>();
-                        foreach (IObject file in bucket.ListObjects(new Credentials(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey)))
+                        foreach (IS3Object file in s3.ListObjects(Settings.Default.Bucket.BucketName))
                         {
                             remoteFiles.Add(GetFileName(file.Key), new File.Attributes(file.Size, file.LastModified, file.ETag, null));
                             if (remoteFiles.Count == 1000)

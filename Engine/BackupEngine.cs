@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using DasBackupTool.Aws;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
-using DasBackupTool.S3;
 using DasBackupTool.Util;
 
 namespace DasBackupTool.Engine
@@ -40,22 +38,15 @@ namespace DasBackupTool.Engine
             backupProgress.EnterAction(BackupAction.RunningBackup);
             try
             {
-                ICredentials credentials = new Credentials(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey);
-                IS3 s3 = new S3.S3();
-                IEnumerable<IBucket> buckets = s3.ListBuckets(credentials);
-                IBucket bucket = buckets.SingleOrDefault(b => b.Name == Settings.Default.Bucket.BucketName);
-                if (bucket == null)
-                {
-                    bucket = s3.CreateBucket(credentials, Settings.Default.Bucket.BucketName);
-                }
+                S3 s3 = new S3(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey);
 
                 foreach (string file in files.NewOrUpdatedFiles)
                 {
-                    retryHelper.Retry(PutObject, bucket, credentials, file);
+                    retryHelper.Retry(PutObject, s3, file);
                 }
                 foreach (string file in files.DeletedFiles)
                 {
-                    retryHelper.Retry(DeleteObject, bucket, credentials, file);
+                    retryHelper.Retry(DeleteObject, s3, file);
                 }
             }
             finally
@@ -71,13 +62,12 @@ namespace DasBackupTool.Engine
 
         private void PutObject(params object[] args)
         {
-            IBucket bucket = (IBucket)args[0];
-            ICredentials credentials = (ICredentials)args[1];
-            string file = (string)args[2];
+            S3 s3 = (S3)args[0];
+            string file = (string)args[1];
 
             using (Stream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
             {
-                bucket.PutObject(credentials, GetObjectName(file), fileStream.Length, "application/octet-stream", fileStream);
+                s3.PutObject(Settings.Default.Bucket.BucketName, GetObjectName(file), fileStream.Length, "application/octet-stream", fileStream);
                 files.FileBackedUp(file);
             }
             System.IO.File.SetAttributes(file, System.IO.File.GetAttributes(file) & ~System.IO.FileAttributes.Archive);
@@ -85,11 +75,10 @@ namespace DasBackupTool.Engine
 
         private void DeleteObject(params object[] args)
         {
-            IBucket bucket = (IBucket)args[0];
-            ICredentials credentials = (ICredentials)args[1];
-            string file = (string)args[2];
+            S3 s3 = (S3)args[0];
+            string file = (string)args[1];
 
-            bucket.DeleteObject(credentials, GetObjectName(file));
+            s3.DeleteObject(Settings.Default.Bucket.BucketName, GetObjectName(file));
             files.FileBackedUp(file);
         }
     }
