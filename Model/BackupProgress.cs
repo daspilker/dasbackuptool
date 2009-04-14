@@ -59,9 +59,14 @@ namespace DasBackupTool.Model
                     State = BackupState.Listing;
                     actions.Add(action);
                 }
-                else
+                else if (action == BackupAction.RunningBackup)
                 {
-                    throw new NotImplementedException();
+                    if (state != BackupState.Idle)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    State = BackupState.Backup;
+                    actions.Add(action);
                 }
             }
             NotifyPropertyChanged("StatusMessage");

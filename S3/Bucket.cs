@@ -41,7 +41,7 @@ namespace DasBackupTool.S3
             while (truncated)
             {
                 string query = marker == null ? "" : "?marker=" + S3Helper.Encode(marker);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://s3.amazonaws.com/" + Name + query);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://s3.amazonaws.com/" + Name + query);
                 XElement xml;
                 using (HttpWebResponse response = S3Helper.Send(request, credentials))
                 {
@@ -68,7 +68,7 @@ namespace DasBackupTool.S3
 
         public void PutObject(ICredentials credentials, string name, long size, string type, Stream stream)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://s3.amazonaws.com/" + Name + "/" + S3Helper.Encode(name));
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://s3.amazonaws.com/" + Name + "/" + S3Helper.Encode(name));
             request.Method = "PUT";
             request.ContentLength = size;
             request.ContentType = type;
@@ -77,7 +77,7 @@ namespace DasBackupTool.S3
 
         public void DeleteObject(ICredentials credentials, string name)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://s3.amazonaws.com/" + Name + "/" + S3Helper.Encode(name));
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://s3.amazonaws.com/" + Name + "/" + S3Helper.Encode(name));
             request.Method = "DELETE";
             S3Helper.SendAndForget(request, credentials, HttpStatusCode.NoContent);
         }

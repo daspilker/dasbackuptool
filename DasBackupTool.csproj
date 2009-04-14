@@ -148,9 +148,9 @@
     </Compile>
     <Compile Include="Ui\ValueConverters.cs" />
     <Compile Include="Util\AbortableTaskExecutor.cs" />
-    <Compile Include="Util\BackgroundTaskQueue.cs" />
     <Compile Include="Util\Dispatcher.cs" />
     <Compile Include="Util\FileUtils.cs" />
+    <Compile Include="Util\RetryHelper.cs" />
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
