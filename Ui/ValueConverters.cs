@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DasBackupTool.Util;
+using System.Text;
 
 namespace DasBackupTool.Ui
 {
@@ -43,7 +44,7 @@ namespace DasBackupTool.Ui
             numberFormat.NumberDecimalDigits = 0;
         }
 
-        public  bool ShowUnit
+        public bool ShowUnit
         {
             get { return showUnit; }
             set { showUnit = value; }
@@ -64,7 +65,7 @@ namespace DasBackupTool.Ui
     {
         private static ImageSource directoryImageSource;
         private static ImageSource fileImageSource;
-        
+
         static FileIconValueConverter()
         {
             directoryImageSource = ExtractIcon("shell32.dll", 3);
@@ -111,6 +112,25 @@ namespace DasBackupTool.Ui
             {
                 DestroyIcon(smallIcon[0]);
             }
+        }
+    }
+
+    public class TimeSpanValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            TimeSpan timeSpan = (TimeSpan)value;
+            StringBuilder builder = new StringBuilder();
+            if (timeSpan.Days > 0) builder.Append(timeSpan.Days).Append(":");
+            if (timeSpan.Hours > 0 || timeSpan.Days > 0) builder.Append(timeSpan.Hours.ToString(builder.Length > 0 ? "00" : "0")).Append(":");
+            builder.Append(timeSpan.Minutes.ToString(builder.Length > 0 ? "00" : "0")).Append(":");
+            builder.Append(timeSpan.Seconds.ToString("00"));
+            return builder.ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

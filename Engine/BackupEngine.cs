@@ -20,6 +20,8 @@ namespace DasBackupTool.Engine
         private long transferedData;
         private long totalFileCount;
         private long totalData;
+        private DateTime currentFileStartTime;
+        private DateTime startTime;
 
         public BackupEngine(Files files, BackupProgress backupProgress)
         {
@@ -51,9 +53,15 @@ namespace DasBackupTool.Engine
                 if (transferedData != value)
                 {
                     transferedData = value;
+                    CurrentFileProgress = 0;
                     NotifyPropertyChanged("TransferedData");
                 }
             }
+        }
+
+        public long CurrentTransferedData
+        {
+            get { return TransferedData + CurrentFileProgress; }
         }
 
         public long TotalFileCount
@@ -91,6 +99,8 @@ namespace DasBackupTool.Engine
                 {
                     currentFile = value;
                     NotifyPropertyChanged("CurrentFile");
+                    CurrentFileProgress = 0;
+                    currentFileStartTime = DateTime.Now;
                 }
             }
         }
@@ -104,7 +114,26 @@ namespace DasBackupTool.Engine
                 {
                     currentFileProgress = value;
                     NotifyPropertyChanged("CurrentFileProgress");
+                    NotifyPropertyChanged("CurrentTransferedData");
+                    NotifyPropertyChanged("CurrentFileTimeLeft");
+                    NotifyPropertyChanged("TimeLeft");
                 }
+            }
+        }
+
+        public TimeSpan CurrentFileTimeLeft
+        {
+            get
+            {
+                return currentFile == null ? TimeSpan.Zero : EstimateTimeLeft(currentFileStartTime, currentFileProgress, currentFile.LocalAttributes.Size);
+            }
+        }
+
+        public TimeSpan TimeLeft
+        {
+            get
+            {
+                return EstimateTimeLeft(startTime, CurrentTransferedData, TotalData);
             }
         }
 
@@ -114,6 +143,7 @@ namespace DasBackupTool.Engine
         {
             TotalFileCount = files.LocalRepositoryStatistics.NewFileCount + files.LocalRepositoryStatistics.UpdatedFileCount;
             TotalData = files.LocalRepositoryStatistics.TransferFileSize;
+            startTime = DateTime.Now;
             executor.Run();
         }
 
@@ -161,7 +191,6 @@ namespace DasBackupTool.Engine
             BackupFile file = (BackupFile)args[1];
 
             CurrentFile = file;
-            CurrentFileProgress = 0;
             using (ProgressMonitoringFileStream fileStream = new ProgressMonitoringFileStream(file.Path))
             {
                 fileStream.ProgressChanged += ProgressChanged;
@@ -179,14 +208,13 @@ namespace DasBackupTool.Engine
             BackupFile file = (BackupFile)args[1];
 
             CurrentFile = file;
-            CurrentFileProgress = 0;
             s3.DeleteObject(Settings.Default.Bucket.BucketName, GetObjectName(file.Path));
             files.FileBackedUp(file.Path);
         }
 
         private void ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            CurrentFileProgress = (long) e.UserState;
+            CurrentFileProgress = (long)e.UserState;
         }
 
         private void NotifyPropertyChanged(string property)
@@ -194,6 +222,20 @@ namespace DasBackupTool.Engine
             if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
+        }
+
+        private TimeSpan EstimateTimeLeft(DateTime startTime, long currentData, long totalData)
+        {
+            if (currentData > 0)
+            {
+                TimeSpan totalElapsed = DateTime.Now - startTime;
+                TimeSpan totalEstimated = TimeSpan.FromMilliseconds(totalElapsed.TotalMilliseconds * totalData / currentData);
+                return totalEstimated - totalElapsed;
+            }
+            else
+            {
+                return TimeSpan.Zero;
             }
         }
 

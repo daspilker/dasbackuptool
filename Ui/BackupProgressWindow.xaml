@@ -6,6 +6,7 @@
 	<Window.Resources>
 		<ui:FileCountValueConverter x:Key="FileCountValueConverter"/>
 		<ui:FileSizeValueConverter x:Key="FileSizeValueConverter" ShowUnit="False"/>
+		<ui:TimeSpanValueConverter x:Key="TimeSpanValueConverter"/>
 	</Window.Resources>
 
 	<Grid Margin="12,12,12,12">
@@ -20,8 +21,12 @@
 			<RowDefinition Height="6"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
 			<RowDefinition Height="15"/>
 			<RowDefinition Height="12"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="6"/>
 			<RowDefinition Height="Auto"/>
@@ -43,10 +48,17 @@
                 </MultiBinding>
 			</TextBlock.Text>
 		</TextBlock>
-		<ProgressBar Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Maximum="{Binding Path=BackupEngine.CurrentFile.LocalAttributes.Size}" Value="{Binding Path=BackupEngine.CurrentFileProgress}"/>
+		<TextBlock Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2">
+			<TextBlock.Text>
+				<MultiBinding StringFormat="{}Estimated {0} left">
+					<Binding Path="BackupEngine.CurrentFileTimeLeft" Converter="{StaticResource TimeSpanValueConverter}"/>
+                </MultiBinding>
+			</TextBlock.Text>
+		</TextBlock>
+		<ProgressBar Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2" Maximum="{Binding Path=BackupEngine.CurrentFile.LocalAttributes.Size}" Value="{Binding Path=BackupEngine.CurrentFileProgress}"/>
 
-		<TextBlock Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2" FontWeight="Bold">Total:</TextBlock>
-		<TextBlock Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="2">
+		<TextBlock Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="2" FontWeight="Bold">Total:</TextBlock>
+		<TextBlock Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2">
 			<TextBlock.Text>
 				<MultiBinding StringFormat="{}{0} of {1} files transfered">
 					<Binding Path="BackupEngine.TransferedFileCount" Converter="{StaticResource FileCountValueConverter}"/>
@@ -54,15 +66,22 @@
                 </MultiBinding>
 			</TextBlock.Text>
 		</TextBlock>
-		<TextBlock Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2">
+		<TextBlock Grid.Column="0" Grid.Row="14" Grid.ColumnSpan="2">
 			<TextBlock.Text>
 				<MultiBinding StringFormat="{}{0} of {1} bytes transfered">
-					<Binding Path="BackupEngine.TransferedData" Converter="{StaticResource FileSizeValueConverter}"/>
+					<Binding Path="BackupEngine.CurrentTransferedData" Converter="{StaticResource FileSizeValueConverter}"/>
                     <Binding Path="BackupEngine.TotalData" Converter="{StaticResource FileSizeValueConverter}"/>
                 </MultiBinding>
 			</TextBlock.Text>
 		</TextBlock>
-		<ProgressBar Grid.Column="0" Grid.Row="14" Grid.ColumnSpan="2" Maximum="{Binding Path=BackupEngine.TotalData}" Value="{Binding Path=BackupEngine.TransferedData}"/>
-		<Button Grid.Column="1" Grid.Row="16" IsCancel="True">Cancel</Button>
+		<TextBlock Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="2">
+			<TextBlock.Text>
+				<MultiBinding StringFormat="{}Estimated {0} left">
+					<Binding Path="BackupEngine.TimeLeft" Converter="{StaticResource TimeSpanValueConverter}"/>
+                </MultiBinding>
+			</TextBlock.Text>
+		</TextBlock>
+		<ProgressBar Grid.Column="0" Grid.Row="18" Grid.ColumnSpan="2" Maximum="{Binding Path=BackupEngine.TotalData}" Value="{Binding Path=BackupEngine.CurrentTransferedData, Mode=OneWay}"/>
+		<Button Grid.Column="1" Grid.Row="20" IsCancel="True">Cancel</Button>
 	</Grid>
 </Window>
