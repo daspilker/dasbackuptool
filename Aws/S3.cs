@@ -53,7 +53,14 @@ namespace DasBackupTool.Aws
                 XElement xml;
                 using (HttpWebResponse response = Send(request, null, HttpStatusCode.OK))
                 {
-                    xml = XElement.Load(new StreamReader(response.GetResponseStream()));
+                    try
+                    {
+                        xml = XElement.Load(new StreamReader(response.GetResponseStream()));
+                    }
+                    catch (IOException e)
+                    {
+                        throw NewS3Exception(e);
+                    }
                 }
                 truncated = (bool)xml.Element(S3_NAMESPACE + "IsTruncated");
 

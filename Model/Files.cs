@@ -12,8 +12,6 @@ namespace DasBackupTool.Model
     {
         private RepositoryStatistics localRepositoryStatistics = new RepositoryStatistics();
         private RepositoryStatistics remoteRepositoryStatistics = new RepositoryStatistics();
-        private long transferedFileCount;
-        private long transferedData;
         private IDictionary<String, File> files = new Dictionary<String, File>();
         private ICollection<BackupLocationStatistics> backupLocationStatistics = new HashSet<BackupLocationStatistics>();
 
@@ -30,32 +28,6 @@ namespace DasBackupTool.Model
         public ICollection<BackupLocationStatistics> BackupLocationStatistics
         {
             get { return backupLocationStatistics; }
-        }
-
-        public long TransferedFileCount
-        {
-            get { return transferedFileCount; }
-            set
-            {
-                if (transferedFileCount != value)
-                {
-                    transferedFileCount = value;
-                    NotifyPropertyChanged("TransferedFileCount");
-                }
-            }
-        }
-
-        public long TransferedData
-        {
-            get { return transferedData; }
-            set
-            {
-                if (transferedData != value)
-                {
-                    transferedData = value;
-                    NotifyPropertyChanged("TransferedData");
-                }
-            }
         }
 
         public IEnumerable<string> NewOrUpdatedFiles
@@ -108,11 +80,6 @@ namespace DasBackupTool.Model
         {
             File file = GetFile(path);
             file.RemoteAttributes = file.LocalAttributes;
-            if (file.LocalAttributes != null)
-            {
-                TransferedFileCount++;
-                TransferedData += file.LocalAttributes.Size;
-            }
             NotifyStatisticsStale();
         }
 

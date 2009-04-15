@@ -75,6 +75,10 @@ namespace DasBackupTool.Ui
         private void BackupExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             backupEngine.Run();
+
+            BackupProgressWindow backupProgressWindow = new BackupProgressWindow(backupEngine);
+            backupProgressWindow.Owner = this;
+            backupProgressWindow.ShowDialog();
         }
 
         private void BackupProgressChanged(object sender, PropertyChangedEventArgs e)

@@ -85,6 +85,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Ui\BackupProgressWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ui\BucketConfigurationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -125,6 +129,9 @@
     </Compile>
     <Compile Include="Ui\BackupLocationSelectionWindow.xaml.cs">
       <DependentUpon>BackupLocationSelectionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Ui\BackupProgressWindow.xaml.cs">
+      <DependentUpon>BackupProgressWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\BucketConfigurationWindow.xaml.cs">
       <DependentUpon>BucketConfigurationWindow.xaml</DependentUpon>

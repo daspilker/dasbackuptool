@@ -48,12 +48,6 @@
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="6"/>
 				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="18"/>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="6"/>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="6"/>
-				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 
 			<Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold">Local files</Label>
@@ -77,13 +71,10 @@
 			<Label Grid.Column="1" Grid.Row="18" Content="{Binding Path=Files.LocalRepositoryStatistics.DeletedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
 			<Label Grid.Column="0" Grid.Row="20" HorizontalAlignment="Right">Transfer file size:</Label>
 			<Label Grid.Column="1" Grid.Row="20" Content="{Binding Path=Files.LocalRepositoryStatistics.TransferFileSize, Converter={StaticResource FileSizeValueConverter}}"/>
-			<Button Grid.Column="2" Grid.Row="12" Grid.RowSpan="9" VerticalAlignment="Bottom" Command="ui:Commands.ViewDetails" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
-			<Label Grid.Column="0" Grid.Row="22" Grid.ColumnSpan="2" FontWeight="Bold">Progress</Label>
-			<Label Grid.Column="0" Grid.Row="24" HorizontalAlignment="Right">Transfered files:</Label>
-			<Label Grid.Column="1" Grid.Row="24" Content="{Binding Path=Files.TransferedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
-			<Label Grid.Column="0" Grid.Row="26" HorizontalAlignment="Right">Transfered data:</Label>
-			<Label Grid.Column="1" Grid.Row="26" Content="{Binding Path=Files.TransferedData, Converter={StaticResource FileSizeValueConverter}}"/>
-			<Button Grid.Column="2" Grid.Row="22" Grid.RowSpan="5" VerticalAlignment="Bottom" Command="ui:Commands.Backup" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
+			<StackPanel Grid.Column="2" Grid.Row="12" Grid.RowSpan="9" VerticalAlignment="Bottom">
+				<Button Command="ui:Commands.ViewDetails" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
+				<Button Command="ui:Commands.Backup" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" Margin="0,6,0,0"/>
+			</StackPanel>
 		</Grid>
 	</DockPanel>
 </Window>
