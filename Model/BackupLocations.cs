@@ -63,14 +63,6 @@ namespace DasBackupTool.Model
         public string Path
         {
             get { return path; }
-            set
-            {
-                if (path != value)
-                {
-                    path = value;
-                    NotifyPropertyChanged("Path");
-                }
-            }
         }
 
         public bool Excluded

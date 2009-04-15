@@ -33,9 +33,9 @@ namespace DasBackupTool.Aws
             }
         }
 
-        public void CreateBucket(string bucketName)
+        public void CreateBucket(string bucket)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(S3_BASE_URL + bucketName);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(S3_BASE_URL + bucket);
             request.Method = "PUT";
             request.ContentLength = 0;
             HttpWebResponse response = Send(request, null, HttpStatusCode.OK);
@@ -72,7 +72,7 @@ namespace DasBackupTool.Aws
             }
         }
 
-        public void PutObject(string bucket, string key, long size, string type, Stream stream)
+        public void PutObject(string bucket, string key, Stream stream, long size, string type)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(S3_BASE_URL + bucket + "/" + Encode(key));
             request.Method = "PUT";
@@ -154,7 +154,7 @@ namespace DasBackupTool.Aws
         private static string CanonicalizeAmzHeaders(HttpWebRequest request)
         {
             SortedDictionary<string, string> amzHeaders = new SortedDictionary<string, string>();
-            foreach (String name in request.Headers.Keys)
+            foreach (string name in request.Headers.Keys)
             {
                 string lowerCaseName = name.ToLower();
                 if (lowerCaseName.StartsWith("x-amz-"))
@@ -207,8 +207,7 @@ namespace DasBackupTool.Aws
         {
             XElement xml = XElement.Load(new StreamReader(response.GetResponseStream()));
             string message = (string)xml.Element("Message");
-            S3Exception result;
-            result = new S3Exception(message, exception);
+            S3Exception result = new S3Exception(message, exception);
             result.Data["StatusCode"] = response.StatusCode;
             result.Data["StatusDescription"] = response.StatusDescription;
             result.Data["Code"] = (string)xml.Element("Code");
@@ -236,7 +235,7 @@ namespace DasBackupTool.Aws
 
         private class S3Bucket : IS3Bucket
         {
-            private String name;
+            private string name;
             private DateTime creationDate;
 
             public S3Bucket(XElement element)
@@ -245,7 +244,7 @@ namespace DasBackupTool.Aws
                 creationDate = (DateTime)element.Element(S3.S3_NAMESPACE + "CreationDate");
             }
 
-            public String Name
+            public string Name
             {
                 get { return name; }
             }
@@ -295,7 +294,7 @@ namespace DasBackupTool.Aws
 
     public interface IS3Bucket
     {
-        String Name { get; }
+        string Name { get; }
         DateTime CreationDate { get; }
     }
 

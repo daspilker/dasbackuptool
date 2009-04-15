@@ -83,7 +83,7 @@ namespace DasBackupTool.Ui
 
         private void BackupProgressChanged(object sender, PropertyChangedEventArgs e)
         {
-            Dispatcher.Invoke(new DispatcherInvokeNoResultHandler(CommandManager.InvalidateRequerySuggested));
+            Dispatcher.BeginInvoke(new DispatcherInvokeNoResultHandler(CommandManager.InvalidateRequerySuggested));
         }
     }
 }

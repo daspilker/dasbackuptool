@@ -30,8 +30,8 @@ namespace DasBackupTool.Ui
 
         private void FilesFilter(object sender, FilterEventArgs e)
         {
-            File file = (File)e.Item;
-            e.Accepted = (file.Status == FileStatus.New && Settings.Default.FileStatusFilterNew) || (file.Status == FileStatus.Updated && Settings.Default.FileStatusFilterUpdated) || (file.Status == FileStatus.Deleted && Settings.Default.FileStatusFilterDeleted) || (file.Status == FileStatus.NotModified && Settings.Default.FileStatusFilterNotModified) || (file.Status == FileStatus.Excluded && Settings.Default.FileStatusFilterExcluded);
+            BackupFile file = (BackupFile)e.Item;
+            e.Accepted = (file.Status == BackupFileStatus.New && Settings.Default.FileStatusFilterNew) || (file.Status == BackupFileStatus.Updated && Settings.Default.FileStatusFilterUpdated) || (file.Status == BackupFileStatus.Deleted && Settings.Default.FileStatusFilterDeleted) || (file.Status == BackupFileStatus.NotModified && Settings.Default.FileStatusFilterNotModified) || (file.Status == BackupFileStatus.Excluded && Settings.Default.FileStatusFilterExcluded);
         }
     }
 }

@@ -46,10 +46,11 @@ namespace DasBackupTool.Engine
                     try
                     {
                         S3 s3 = new S3(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey);
-                        IDictionary<string, File.Attributes> remoteFiles = new Dictionary<string, File.Attributes>();
+                        IDictionary<string, BackupFileAttributes> remoteFiles = new Dictionary<string, BackupFileAttributes>();
                         foreach (IS3Object file in s3.ListObjects(Settings.Default.Bucket.BucketName))
                         {
-                            remoteFiles.Add(GetFileName(file.Key), new File.Attributes(file.Size, file.LastModified, file.ETag, null));
+                            executor.CheckAbortion();
+                            remoteFiles.Add(GetFileName(file.Key), new BackupFileAttributes(file.Size, file.LastModified, file.ETag, null));
                             if (remoteFiles.Count == 1000)
                             {
                                 files.AddRemoteFiles(remoteFiles);

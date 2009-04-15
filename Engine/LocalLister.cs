@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
 using DasBackupTool.Util;
-using DirectoryInfo = System.IO.DirectoryInfo;
-using FileAttributes = System.IO.FileAttributes;
-using FileInfo = System.IO.FileInfo;
-using FileNotFoundException = System.IO.FileNotFoundException;
 
 namespace DasBackupTool.Engine
 {
@@ -17,7 +13,7 @@ namespace DasBackupTool.Engine
     {
         private Files files;
         private BackupProgress backupProgress;
-        private IDictionary<string, File.Attributes> localFiles = new Dictionary<string, File.Attributes>();
+        private IDictionary<string, BackupFileAttributes> localFiles = new Dictionary<string, BackupFileAttributes>();
         private AbortableTaskExecutor executor;
 
         public LocalLister(Files files, BackupProgress backupProgress)
@@ -42,7 +38,6 @@ namespace DasBackupTool.Engine
 
         private void ListBackupLocations()
         {
-            DateTime start = DateTime.Now;
             backupProgress.EnterAction(BackupAction.ListingLocal);
             try
             {
@@ -53,6 +48,7 @@ namespace DasBackupTool.Engine
                     files.TrackStatisticsFor(Settings.Default.BackupLocations.IncludedLocations);
                     foreach (BackupLocation backupLocation in Settings.Default.BackupLocations.IncludedLocations)
                     {
+                        executor.CheckAbortion();
                         try
                         {
                             if (FileUtils.IsDirectory(backupLocation.Path))
@@ -76,8 +72,6 @@ namespace DasBackupTool.Engine
             {
                 backupProgress.ExitAction(BackupAction.ListingLocal);
             }
-            DateTime end = DateTime.Now;
-            Debug.Print("locallister: " + (end - start));
         }
 
         private void ListDirectory(DirectoryInfo directory)
@@ -86,6 +80,7 @@ namespace DasBackupTool.Engine
             {
                 foreach (DirectoryInfo subDirectory in directory.GetDirectories())
                 {
+                    executor.CheckAbortion();
                     if (!Settings.Default.BackupLocations.IsExcluded(subDirectory.FullName))
                     {
                         ListDirectory(subDirectory);
@@ -93,6 +88,7 @@ namespace DasBackupTool.Engine
                 }
                 foreach (FileInfo file in directory.GetFiles())
                 {
+                    executor.CheckAbortion();
                     if (!Settings.Default.BackupLocations.IsExcluded(file.FullName))
                     {
                         ListFile(file);
@@ -107,7 +103,7 @@ namespace DasBackupTool.Engine
 
         private void ListFile(FileInfo file)
         {
-            localFiles.Add(file.FullName, new File.Attributes(file.Length, file.LastWriteTimeUtc, null, FileUtils.IsArchive(file.FullName)));
+            localFiles.Add(file.FullName, new BackupFileAttributes(file.Length, file.LastWriteTimeUtc, null, FileUtils.IsArchive(file.FullName)));
             if (localFiles.Count == 1000)
             {
                 CommitFiles();

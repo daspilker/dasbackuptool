@@ -8,9 +8,9 @@ namespace DasBackupTool.Engine
     {
         private Files files;
         private Thread thread;
-        private bool running;
         private bool updateStatistics;
         private object monitor = new object();
+        private bool running;
 
         public StatisticsUpdater(Files files)
         {
@@ -28,9 +28,9 @@ namespace DasBackupTool.Engine
         public void Dispose()
         {
             files.StatisticStale -= StatisticStale;
-            running = false;
             lock (monitor)
             {
+                running = false;
                 updateStatistics = false;
                 Monitor.PulseAll(monitor);
             }
@@ -50,7 +50,10 @@ namespace DasBackupTool.Engine
                 {
                     if (!updateStatistics)
                     {
-                        Monitor.Wait(monitor);
+                        if (running)
+                        {
+                            Monitor.Wait(monitor);
+                        }
                     }
                 }
             }

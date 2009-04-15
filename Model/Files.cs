@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
+using System.IO;
 using System.Text.RegularExpressions;
 using DasBackupTool.Properties;
+using Microsoft.Win32;
 
 namespace DasBackupTool.Model
 {
@@ -12,7 +13,7 @@ namespace DasBackupTool.Model
     {
         private RepositoryStatistics localRepositoryStatistics = new RepositoryStatistics();
         private RepositoryStatistics remoteRepositoryStatistics = new RepositoryStatistics();
-        private IDictionary<String, File> files = new Dictionary<String, File>();
+        private IDictionary<string, BackupFile> files = new Dictionary<string, BackupFile>();
         private ICollection<BackupLocationStatistics> backupLocationStatistics = new HashSet<BackupLocationStatistics>();
 
         public RepositoryStatistics LocalRepositoryStatistics
@@ -30,31 +31,31 @@ namespace DasBackupTool.Model
             get { return backupLocationStatistics; }
         }
 
-        public IEnumerable<string> NewOrUpdatedFiles
+        public IEnumerable<BackupFile> NewOrUpdatedFiles
         {
-            get { return files.Values.Where(f => f.Status == FileStatus.New || f.Status == FileStatus.Updated).Select(f => f.Path); }
+            get { return files.Values.Where(f => f.Status == BackupFileStatus.New || f.Status == BackupFileStatus.Updated); }
         }
 
-        public IEnumerable<string> DeletedFiles
+        public IEnumerable<BackupFile> DeletedFiles
         {
-            get { return files.Values.Where(f => f.Status == FileStatus.Deleted).Select(f => f.Path); }
+            get { return files.Values.Where(f => f.Status == BackupFileStatus.Deleted); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event StatisticsEventHandler StatisticStale;
 
-        public void AddLocalFile(String path, File.Attributes attributes)
+        public void AddLocalFile(string path, BackupFileAttributes attributes)
         {
-            File file = GetFile(path);
+            BackupFile file = GetFile(path);
             file.LocalAttributes = attributes;
             NotifyStatisticsStale();
         }
 
-        public void AddLocalFiles(IDictionary<string, File.Attributes> files)
+        public void AddLocalFiles(IDictionary<string, BackupFileAttributes> files)
         {
             foreach (string path in files.Keys)
             {
-                File file = GetFile(path);
+                BackupFile file = GetFile(path);
                 file.LocalAttributes = files[path];
             }
             if (files.Count > 0)
@@ -63,11 +64,11 @@ namespace DasBackupTool.Model
             }
         }
 
-        public void AddRemoteFiles(IDictionary<string, File.Attributes> files)
+        public void AddRemoteFiles(IDictionary<string, BackupFileAttributes> files)
         {
             foreach (string path in files.Keys)
             {
-                File file = GetFile(path);
+                BackupFile file = GetFile(path);
                 file.RemoteAttributes = files[path];
             }
             if (files.Count > 0)
@@ -76,9 +77,9 @@ namespace DasBackupTool.Model
             }
         }
 
-        public void FileBackedUp(String path)
+        public void FileBackedUp(string path)
         {
-            File file = GetFile(path);
+            BackupFile file = GetFile(path);
             file.RemoteAttributes = file.LocalAttributes;
             NotifyStatisticsStale();
         }
@@ -87,11 +88,11 @@ namespace DasBackupTool.Model
         {
             lock (files)
             {
-                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.RemoteAttributes == null).ToList())
+                foreach (KeyValuePair<string, BackupFile> pair in files.Where(p => p.Value.RemoteAttributes == null).ToList())
                 {
                     files.Remove(pair);
                 }
-                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.LocalAttributes != null))
+                foreach (KeyValuePair<string, BackupFile> pair in files.Where(p => p.Value.LocalAttributes != null))
                 {
                     pair.Value.LocalAttributes = null;
                 }
@@ -103,11 +104,11 @@ namespace DasBackupTool.Model
         {
             lock (files)
             {
-                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.LocalAttributes == null).ToList())
+                foreach (KeyValuePair<string, BackupFile> pair in files.Where(p => p.Value.LocalAttributes == null).ToList())
                 {
                     files.Remove(pair);
                 }
-                foreach (KeyValuePair<string, File> pair in files.Where(p => p.Value.RemoteAttributes != null))
+                foreach (KeyValuePair<string, BackupFile> pair in files.Where(p => p.Value.RemoteAttributes != null))
                 {
                     pair.Value.RemoteAttributes = null;
                 }
@@ -130,43 +131,40 @@ namespace DasBackupTool.Model
 
         public void UpdateStatistics()
         {
-            DateTime start = DateTime.Now;
             lock (files)
             {
-                IEnumerable<File> localFiles = files.Values.Where(f => f.LocalAttributes != null);
-                IEnumerable<File> newFiles = files.Values.Where(f => f.Status == FileStatus.New);
-                IEnumerable<File> updatedFiles = files.Values.Where(f => f.Status == FileStatus.Updated);
+                IEnumerable<BackupFile> localFiles = files.Values.Where(f => f.LocalAttributes != null);
+                IEnumerable<BackupFile> newFiles = files.Values.Where(f => f.Status == BackupFileStatus.New);
+                IEnumerable<BackupFile> updatedFiles = files.Values.Where(f => f.Status == BackupFileStatus.Updated);
                 localRepositoryStatistics.FileCount = localFiles.Count();
                 localRepositoryStatistics.TotalFileSize = localFiles.Sum(f => f.LocalAttributes.Size);
                 localRepositoryStatistics.NewFileCount = newFiles.Count();
                 localRepositoryStatistics.UpdatedFileCount = updatedFiles.Count();
-                localRepositoryStatistics.DeletedFileCount = files.Values.Count(f => f.Status == FileStatus.Deleted);
+                localRepositoryStatistics.DeletedFileCount = files.Values.Count(f => f.Status == BackupFileStatus.Deleted);
                 localRepositoryStatistics.TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
-                IEnumerable<File> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
+                IEnumerable<BackupFile> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
                 remoteRepositoryStatistics.FileCount = remoteFiles.Count();
                 remoteRepositoryStatistics.TotalFileSize = remoteFiles.Sum(f => f.RemoteAttributes.Size);
                 foreach (BackupLocationStatistics statistics in backupLocationStatistics)
                 {
-                    statistics.Files = new HashSet<File>(files.Values.Where(f => f.IsBelow(statistics.Path)));
+                    statistics.Files = new HashSet<BackupFile>(files.Values.Where(f => f.IsBelow(statistics.Path)));
                     statistics.UpdateStatistics();
                 }
             }
-            DateTime end = DateTime.Now;
-            Debug.Print("update: " + (end - start));
         }
 
-        private File GetFile(string path)
+        private BackupFile GetFile(string path)
         {
             lock (files)
             {
-                File file;
+                BackupFile file;
                 if (files.ContainsKey(path))
                 {
                     file = files[path];
                 }
                 else
                 {
-                    file = new File(path);
+                    file = new BackupFile(path);
                     files[path] = file;
                 }
                 return file;
@@ -293,7 +291,7 @@ namespace DasBackupTool.Model
     public class BackupLocationStatistics : RepositoryStatistics
     {
         private string path;
-        private ICollection<File> files;
+        private ICollection<BackupFile> files;
 
         public BackupLocationStatistics(string path)
         {
@@ -305,7 +303,7 @@ namespace DasBackupTool.Model
             get { return path; }
         }
 
-        public ICollection<File> Files
+        public ICollection<BackupFile> Files
         {
             get { return files; }
             set
@@ -317,26 +315,26 @@ namespace DasBackupTool.Model
 
         public void UpdateStatistics()
         {
-            IEnumerable<File> localFiles = files.Where(f => f.LocalAttributes != null);
-            IEnumerable<File> newFiles = localFiles.Where(f => f.Status == FileStatus.New);
-            IEnumerable<File> updatedFiles = localFiles.Where(f => f.Status == FileStatus.Updated);
+            IEnumerable<BackupFile> localFiles = files.Where(f => f.LocalAttributes != null);
+            IEnumerable<BackupFile> newFiles = localFiles.Where(f => f.Status == BackupFileStatus.New);
+            IEnumerable<BackupFile> updatedFiles = localFiles.Where(f => f.Status == BackupFileStatus.Updated);
             FileCount = localFiles.Count();
             TotalFileSize = localFiles.Sum(f => f.LocalAttributes.Size);
             NewFileCount = newFiles.Count();
             UpdatedFileCount = updatedFiles.Count();
-            DeletedFileCount = files.Count(f => f.Status == FileStatus.Deleted);
+            DeletedFileCount = files.Count(f => f.Status == BackupFileStatus.Deleted);
             TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
         }
     }
 
-    public class File
+    public class BackupFile
     {
         private string path;
-        private FileStatus status = FileStatus.NotModified;
-        private Attributes localAttributes;
-        private Attributes remoteAttributes;
+        private BackupFileStatus status = BackupFileStatus.NotModified;
+        private BackupFileAttributes localAttributes;
+        private BackupFileAttributes remoteAttributes;
 
-        public File(string path)
+        public BackupFile(string path)
         {
             this.path = path;
         }
@@ -346,12 +344,29 @@ namespace DasBackupTool.Model
             get { return path; }
         }
 
-        public FileStatus Status
+        public string ContentType
+        {
+            get
+            {
+                RegistryKey key = Registry.ClassesRoot.OpenSubKey(new FileInfo(path).Extension);
+                if (key != null)
+                {
+                    object value = key.GetValue("Content Type");
+                    if (value != null)
+                    {
+                        return value.ToString();
+                    }
+                }
+                return "application/octet-stream";
+            }
+        }
+
+        public BackupFileStatus Status
         {
             get { return status; }
         }
 
-        public Attributes LocalAttributes
+        public BackupFileAttributes LocalAttributes
         {
             get { return localAttributes; }
             set
@@ -361,7 +376,7 @@ namespace DasBackupTool.Model
             }
         }
 
-        public Attributes RemoteAttributes
+        public BackupFileAttributes RemoteAttributes
         {
             get { return remoteAttributes; }
             set
@@ -380,64 +395,64 @@ namespace DasBackupTool.Model
         {
             if (localAttributes == null)
             {
-                status = remoteAttributes == null ? FileStatus.NotModified : FileStatus.Deleted;
+                status = remoteAttributes == null ? BackupFileStatus.NotModified : BackupFileStatus.Deleted;
             }
             else
             {
                 if (new Regex(Settings.Default.ExcludedFilesRegularExpression).IsMatch(path))
                 {
-                    status = remoteAttributes != null ? FileStatus.Deleted : FileStatus.Excluded;
+                    status = remoteAttributes != null ? BackupFileStatus.Deleted : BackupFileStatus.Excluded;
                 }
                 else
                 {
                     if (remoteAttributes == null)
                     {
-                        status = FileStatus.New;
+                        status = BackupFileStatus.New;
                     }
                     else
                     {
-                        status = localAttributes.Size != remoteAttributes.Size || localAttributes.ModificationDate.CompareTo(remoteAttributes.ModificationDate) > 0 ? FileStatus.Updated : FileStatus.NotModified;
+                        status = localAttributes.Size != remoteAttributes.Size || localAttributes.ModificationDate.CompareTo(remoteAttributes.ModificationDate) > 0 ? BackupFileStatus.Updated : BackupFileStatus.NotModified;
                     }
                 }
             }
         }
+    }
 
-        public class Attributes
+    public class BackupFileAttributes
+    {
+        private long size;
+        private DateTime modificationDate;
+        private string md5;
+        private bool? archive;
+
+        public BackupFileAttributes(long size, DateTime modificationDate, string md5, bool? archive)
         {
-            private long size;
-            private DateTime modificationDate;
-            private string md5;
-            private bool? archive;
+            this.size = size;
+            this.modificationDate = modificationDate;
+            this.md5 = md5;
+            this.archive = archive;
+        }
 
-            public Attributes(long size, DateTime modificationDate, string md5, bool? archive)
-            {
-                this.size = size;
-                this.modificationDate = modificationDate;
-                this.md5 = md5;
-                this.archive = archive;
-            }
+        public long Size
+        {
+            get { return size; }
+        }
 
-            public long Size
-            {
-                get { return size; }
-            }
+        public DateTime ModificationDate
+        {
+            get { return modificationDate; }
+        }
 
-            public DateTime ModificationDate
-            {
-                get { return modificationDate; }
-            }
+        public string MD5
+        {
+            get { return md5; }
+        }
 
-            public string MD5
-            {
-                get { return md5; }
-            }
-
-            public bool? Archive
-            {
-                get { return archive; }
-            }
+        public bool? Archive
+        {
+            get { return archive; }
         }
     }
 
-    public enum FileStatus { New, Updated, Deleted, NotModified, Excluded };
+    public enum BackupFileStatus { New, Updated, Deleted, NotModified, Excluded };
 }

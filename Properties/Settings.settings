@@ -21,7 +21,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="ExcludedFilesRegularExpression" Type="System.String" Scope="User">
-      <Value Profile="(Default)">.*\\desktop.ini|.*\\Thumbs.db</Value>
+      <Value Profile="(Default)">.*\\desktop\.ini|.*\\Thumbs\.db</Value>
     </Setting>
     <Setting Name="FileStatusFilterExcluded" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

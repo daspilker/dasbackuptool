@@ -14,8 +14,7 @@ namespace DasBackupTool.Engine
         private BackupProgress backupProgress;
         private AbortableTaskExecutor executor;
         private RetryHelper retryHelper;
-        private string currentFile;
-        private long currentFileSize;
+        private BackupFile currentFile;
         private long currentFileProgress;
         private long transferedFileCount;
         private long transferedData;
@@ -83,7 +82,7 @@ namespace DasBackupTool.Engine
             }
         }
 
-        public string CurrentFile
+        public BackupFile CurrentFile
         {
             get { return currentFile; }
             set
@@ -92,19 +91,6 @@ namespace DasBackupTool.Engine
                 {
                     currentFile = value;
                     NotifyPropertyChanged("CurrentFile");
-                }
-            }
-        }
-
-        public long CurrentFileSize
-        {
-            get { return currentFileSize; }
-            set
-            {
-                if (currentFileSize != value)
-                {
-                    currentFileSize = value;
-                    NotifyPropertyChanged("CurrentFileSize");
                 }
             }
         }
@@ -152,12 +138,14 @@ namespace DasBackupTool.Engine
             {
                 S3 s3 = new S3(Settings.Default.Bucket.AccessKeyId, Settings.Default.Bucket.SecretAccessKey);
 
-                foreach (string file in files.NewOrUpdatedFiles)
+                foreach (BackupFile file in files.NewOrUpdatedFiles)
                 {
+                    executor.CheckAbortion();
                     retryHelper.Retry(PutObject, s3, file);
                 }
-                foreach (string file in files.DeletedFiles)
+                foreach (BackupFile file in files.DeletedFiles)
                 {
+                    executor.CheckAbortion();
                     retryHelper.Retry(DeleteObject, s3, file);
                 }
             }
@@ -170,38 +158,35 @@ namespace DasBackupTool.Engine
         private void PutObject(params object[] args)
         {
             S3 s3 = (S3)args[0];
-            string file = (string)args[1];
+            BackupFile file = (BackupFile)args[1];
 
-            using (ProgressMonitoringFileStream fileStream = new ProgressMonitoringFileStream(file))
+            CurrentFile = file;
+            CurrentFileProgress = 0;
+            using (ProgressMonitoringFileStream fileStream = new ProgressMonitoringFileStream(file.Path))
             {
-                fileStream.PositionChanged += PositionChanged;
-                CurrentFile = file;
-                CurrentFileSize = fileStream.Length;
-                s3.PutObject(Settings.Default.Bucket.BucketName, GetObjectName(file), fileStream.Length, "application/octet-stream", fileStream);
-                files.FileBackedUp(file);
+                fileStream.ProgressChanged += ProgressChanged;
+                s3.PutObject(Settings.Default.Bucket.BucketName, GetObjectName(file.Path), fileStream, file.LocalAttributes.Size, file.ContentType);
+                files.FileBackedUp(file.Path);
                 TransferedFileCount++;
                 TransferedData += fileStream.Length;
             }
-            System.IO.File.SetAttributes(file, System.IO.File.GetAttributes(file) & ~System.IO.FileAttributes.Archive);
-            CurrentFile = null;
-            CurrentFileSize = 0;
-            CurrentFileProgress = 0;
+            File.SetAttributes(file.Path, File.GetAttributes(file.Path) & ~FileAttributes.Archive);
         }
 
         private void DeleteObject(params object[] args)
         {
             S3 s3 = (S3)args[0];
-            string file = (string)args[1];
+            BackupFile file = (BackupFile)args[1];
 
             CurrentFile = file;
-            s3.DeleteObject(Settings.Default.Bucket.BucketName, GetObjectName(file));
-            files.FileBackedUp(file);
-            CurrentFile = null;
+            CurrentFileProgress = 0;
+            s3.DeleteObject(Settings.Default.Bucket.BucketName, GetObjectName(file.Path));
+            files.FileBackedUp(file.Path);
         }
 
-        private void PositionChanged(object sender, long position)
+        private void ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            CurrentFileProgress = position;
+            CurrentFileProgress = (long) e.UserState;
         }
 
         private void NotifyPropertyChanged(string property)
@@ -219,24 +204,19 @@ namespace DasBackupTool.Engine
 
         private class ProgressMonitoringFileStream : FileStream
         {
-            public ProgressMonitoringFileStream(string file)
-                : base(file, FileMode.Open, FileAccess.Read)
-            {
-            }
+            public ProgressMonitoringFileStream(string file) : base(file, FileMode.Open, FileAccess.Read) { }
 
-            public event PositionChangedEventHandler PositionChanged;
+            public event ProgressChangedEventHandler ProgressChanged;
 
             public override int Read(byte[] array, int offset, int count)
             {
                 int result = base.Read(array, offset, count);
-                if (PositionChanged != null)
+                if (ProgressChanged != null)
                 {
-                    PositionChanged(this, Position);
+                    ProgressChanged(this, new ProgressChangedEventArgs((int)(Position * 100 / Length), Position));
                 }
                 return result;
             }
         }
-
-        public delegate void PositionChangedEventHandler(object sender, long position);
     }
 }
