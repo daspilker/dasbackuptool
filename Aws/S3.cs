@@ -6,6 +6,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
+using System.Threading;
 
 namespace DasBackupTool.Aws
 {
@@ -230,6 +231,10 @@ namespace DasBackupTool.Aws
 
         private static S3Exception NewS3Exception(IOException ioException)
         {
+            if (ioException.InnerException is ThreadAbortException)
+            {
+                throw ioException.InnerException;
+            }
             return new S3Exception(ioException.ToString(), ioException);
         }
 

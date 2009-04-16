@@ -49,7 +49,7 @@
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<StackPanel Orientation="Horizontal">
-										<Image Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}" Margin="0,0,3,0"/>
+										<Image Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}" Margin="0,0,3,0" Width="16"/>
 										<TextBlock Text="{Binding Path=Path}" ToolTip="{Binding Path=Path}"/>
 									</StackPanel>
 								</DataTemplate>

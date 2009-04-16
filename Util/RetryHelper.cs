@@ -7,11 +7,13 @@ namespace DasBackupTool.Util
     public class ExceptionOccuredEventArgs : EventArgs
     {
         private Exception exception;
-        private ExceptionAction action;
+        private int retryCount;
+        private bool retry = true;
 
-        public ExceptionOccuredEventArgs(Exception exception)
+        public ExceptionOccuredEventArgs(Exception exception, int retryCount)
         {
             this.exception = exception;
+            this.retryCount = retryCount;
         }
 
         public Exception Exception
@@ -19,59 +21,55 @@ namespace DasBackupTool.Util
             get { return exception; }
         }
 
-        public ExceptionAction Action
+        public int RetryCount
         {
-            get { return action; }
-            set { action = value; }
+            get { return retryCount; }
+        }
+
+        public bool Retry
+        {
+            get { return retry; }
+            set { retry = value; }
         }
     }
 
-    public enum ExceptionAction { IGNORE, RETRY }
-
     public delegate void RetryHandler(params object[] args);
-    public delegate void IgnoreHandler();
 
     public class RetryHelper
     {
         public event ExceptionOccuredEventHandler ExceptionOccured;
 
-        public void Retry(RetryHandler retryHandler, params object[] args)
-        {
-            Retry(retryHandler, null, args);
-        }
-
-        public void Retry(RetryHandler retryHandler, IgnoreHandler ignoreHandler, params object[] args)
+        public bool Retry(RetryHandler retryHandler, params object[] args)
         {
             bool retry = true;
+            int retryCount = -1;
 
             while (retry)
             {
+                retryCount++;
                 try
                 {
                     retryHandler(args);
-                    retry = false;
+                    return true;
                 }
                 catch (Exception e)
                 {
-                    retry = NotifyExceptionOccured(e);
-                    if (!retry && ignoreHandler != null)
-                    {
-                        ignoreHandler();
-                    }
+                    retry = NotifyExceptionOccured(e, retryCount);
                 }
             }
+            return false;
         }
 
-        private bool NotifyExceptionOccured(Exception exception)
+        private bool NotifyExceptionOccured(Exception exception, int retryCount)
         {
-            ExceptionOccuredEventArgs eventArgs = new ExceptionOccuredEventArgs(exception);
+            ExceptionOccuredEventArgs eventArgs = new ExceptionOccuredEventArgs(exception, retryCount);
 
             if (ExceptionOccured != null)
             {
                 ExceptionOccured(this, eventArgs);
             }
 
-            return eventArgs.Action == ExceptionAction.RETRY;
+            return eventArgs.Retry;
         }
     }
 }

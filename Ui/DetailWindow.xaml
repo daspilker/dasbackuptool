@@ -14,8 +14,6 @@
 			</CollectionViewSource.SortDescriptions>
 		</CollectionViewSource>
 		<ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
-		<ui:FileCountValueConverter x:Key="FileCountValueConverter"/>
-		<ui:FileSizeValueConverter x:Key="FileSizeValueConverter" ShowUnit="false"/>
 	</Window.Resources>
 	
 	<StackPanel Margin="12,12,12,12">
@@ -41,42 +39,42 @@
 						<GridViewColumn Header="Files">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding Path=FileCount, Converter={StaticResource FileCountValueConverter}}" HorizontalAlignment="Right"/>
+									<TextBlock Text="{Binding Path=FileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
 						<GridViewColumn Header="Size (bytes)">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding Path=TotalFileSize, Converter={StaticResource FileSizeValueConverter}}" HorizontalAlignment="Right"/>
+									<TextBlock Text="{Binding Path=TotalFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
 						<GridViewColumn Header="New">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding Path=NewFileCount, Converter={StaticResource FileCountValueConverter}}" HorizontalAlignment="Right"/>
+									<TextBlock Text="{Binding Path=NewFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
 						<GridViewColumn Header="Updated">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding Path=UpdatedFileCount, Converter={StaticResource FileCountValueConverter}}" HorizontalAlignment="Right"/>
+									<TextBlock Text="{Binding Path=UpdatedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
 						<GridViewColumn Header="Deleted">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding Path=DeletedFileCount, Converter={StaticResource FileCountValueConverter}}" HorizontalAlignment="Right"/>
+									<TextBlock Text="{Binding Path=DeletedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
 						<GridViewColumn Header="Transfer Size (bytes)">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
-									<TextBlock Text="{Binding Path=TransferFileSize, Converter={StaticResource FileSizeValueConverter}}" HorizontalAlignment="Right"/>
+									<TextBlock Text="{Binding Path=TransferFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>

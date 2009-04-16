@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Markup;
 using DasBackupTool.Model;
 
 namespace DasBackupTool.Ui
@@ -14,6 +16,7 @@ namespace DasBackupTool.Ui
 
             InitializeComponent();
             DataContext = this;
+            Language = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag);
         }
 
         private void ViewBackupLocationDetailsCanExecute(object sender, CanExecuteRoutedEventArgs e)

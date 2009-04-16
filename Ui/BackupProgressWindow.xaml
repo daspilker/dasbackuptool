@@ -3,85 +3,94 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="clr-namespace:DasBackupTool.Ui"
     Title="Backup Progress" ResizeMode="CanResize" SizeToContent="Height" Width="600" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Loaded="WindowLoaded">
-    <Window.Resources>
-        <ui:FileCountValueConverter x:Key="FileCountValueConverter"/>
-        <ui:FileSizeValueConverter x:Key="FileSizeValueConverter" ShowUnit="False"/>
-        <ui:TimeSpanValueConverter x:Key="TimeSpanValueConverter"/>
-        <ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
-    </Window.Resources>
+	<Window.Resources>
+		<ui:TimeSpanValueConverter x:Key="TimeSpanValueConverter"/>
+		<ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
+	</Window.Resources>
 
-    <Grid Margin="12,12,12,12">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="6"/>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="15"/>
-            <RowDefinition Height="12"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="6"/>
-            <RowDefinition Height="15"/>
-            <RowDefinition MinHeight="12"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+	<Grid Margin="12,12,12,12">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="6"/>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="Auto"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="15"/>
+			<RowDefinition Height="12"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="6"/>
+			<RowDefinition Height="15"/>
+			<RowDefinition MinHeight="12"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
 
-        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" FontWeight="Bold">Current file</TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right">Path:</TextBlock>
-        <StackPanel Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <Image Source="{Binding Path=BackupEngine.CurrentFile.Path, Converter={StaticResource FileIconValueConverter}}" Margin="0,0,3,0"/>
-            <TextBlock  Text="{Binding Path=BackupEngine.CurrentFile.Path}" TextTrimming="CharacterEllipsis"/>
-        </StackPanel>
-        <TextBlock Grid.Column="0" Grid.Row="4" HorizontalAlignment="Right">Data transfered:</TextBlock>
-        <TextBlock Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="2">
+		<TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" FontWeight="Bold">Current file</TextBlock>
+		<TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right">Path:</TextBlock>
+		<Grid Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Image Source="{Binding Path=BackupEngine.CurrentFile.Path, Converter={StaticResource FileIconValueConverter}}" Margin="0,0,3,0"/>
+			<TextBlock Grid.Column="1" Text="{Binding Path=BackupEngine.CurrentFile.Path}" TextTrimming="CharacterEllipsis"/>
+		</Grid>
+		<TextBlock Grid.Column="0" Grid.Row="4" HorizontalAlignment="Right">Data transfered:</TextBlock>
+		<TextBlock Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="2">
 			<TextBlock.Text>
-				<MultiBinding StringFormat="{}{0} of {1} bytes">
-					<Binding Path="BackupEngine.CurrentFileProgress" Converter="{StaticResource FileSizeValueConverter}"/>
-                    <Binding Path="BackupEngine.CurrentFile.LocalAttributes.Size" Converter="{StaticResource FileSizeValueConverter}"/>
+				<MultiBinding StringFormat="{}{0:n0} of {1:n0} bytes">
+					<Binding Path="BackupEngine.CurrentFileProgress"/>
+                    <Binding Path="BackupEngine.CurrentFile.LocalAttributes.Size"/>
                 </MultiBinding>
 			</TextBlock.Text>
-        </TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="6" HorizontalAlignment="Right">Estimated time left:</TextBlock>
-        <TextBlock Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding Path=BackupEngine.CurrentFileTimeLeft, Converter={StaticResource TimeSpanValueConverter}}"/>
-        <ProgressBar Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="4" Maximum="{Binding Path=BackupEngine.CurrentFile.LocalAttributes.Size}" Value="{Binding Path=BackupEngine.CurrentFileProgress}"/>
+		</TextBlock>
+		<TextBlock Grid.Column="0" Grid.Row="6" HorizontalAlignment="Right">Estimated time left:</TextBlock>
+		<TextBlock Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding Path=BackupEngine.CurrentFileTimeLeft, Converter={StaticResource TimeSpanValueConverter}}"/>
+		<ProgressBar Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="4" Maximum="{Binding Path=BackupEngine.CurrentFile.LocalAttributes.Size}" Value="{Binding Path=BackupEngine.CurrentFileProgress}"/>
 
-        <TextBlock Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="4" FontWeight="Bold">Total</TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="12" HorizontalAlignment="Right">Files transfered:</TextBlock>
-        <TextBlock Grid.Column="2" Grid.Row="12" Grid.ColumnSpan="2">
+		<TextBlock Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="4" FontWeight="Bold">Total</TextBlock>
+		<TextBlock Grid.Column="0" Grid.Row="12" HorizontalAlignment="Right">Files transfered:</TextBlock>
+		<TextBlock Grid.Column="2" Grid.Row="12" Grid.ColumnSpan="2">
 			<TextBlock.Text>
-				<MultiBinding StringFormat="{}{0} of {1}">
-					<Binding Path="BackupEngine.TransferedFileCount" Converter="{StaticResource FileCountValueConverter}"/>
-                    <Binding Path="BackupEngine.TotalFileCount" Converter="{StaticResource FileCountValueConverter}"/>
+				<MultiBinding StringFormat="{}{0:n0} of {1:n0}">
+					<Binding Path="BackupEngine.TransferedFileCount"/>
+					<Binding Path="BackupEngine.TotalFileCount"/>
+				</MultiBinding>
+			</TextBlock.Text>
+		</TextBlock>
+		<TextBlock Grid.Column="0" Grid.Row="14" HorizontalAlignment="Right">Data transfered:</TextBlock>
+		<TextBlock Grid.Column="2" Grid.Row="14" Grid.ColumnSpan="2">
+			<TextBlock.Text>
+				<MultiBinding StringFormat="{}{0:n0} of {1:n0} bytes">
+					<Binding Path="BackupEngine.CurrentTransferedData"/>
+                    <Binding Path="BackupEngine.TotalData"/>
                 </MultiBinding>
 			</TextBlock.Text>
-        </TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="14" HorizontalAlignment="Right">Data transfered:</TextBlock>
-        <TextBlock Grid.Column="2" Grid.Row="14" Grid.ColumnSpan="2">
-			<TextBlock.Text>
-				<MultiBinding StringFormat="{}{0} of {1} bytes">
-					<Binding Path="BackupEngine.CurrentTransferedData" Converter="{StaticResource FileSizeValueConverter}"/>
-                    <Binding Path="BackupEngine.TotalData" Converter="{StaticResource FileSizeValueConverter}"/>
-                </MultiBinding>
-			</TextBlock.Text>
-        </TextBlock>
-        <TextBlock Grid.Column="0" Grid.Row="16" HorizontalAlignment="Right">Estimated time left:</TextBlock>
-        <TextBlock Grid.Column="2" Grid.Row="16" Grid.ColumnSpan="2" Text="{Binding Path=BackupEngine.TimeLeft, Converter={StaticResource TimeSpanValueConverter}}"/>
-        <ProgressBar Grid.Column="0" Grid.Row="18" Grid.ColumnSpan="4" Maximum="{Binding Path=BackupEngine.TotalData}" Value="{Binding Path=BackupEngine.CurrentTransferedData, Mode=OneWay}"/>
-        <Button Grid.Column="3" Grid.Row="20" IsCancel="True">Cancel</Button>
-    </Grid>
+		</TextBlock>
+		<TextBlock Grid.Column="0" Grid.Row="16" HorizontalAlignment="Right">Files failed:</TextBlock>
+		<TextBlock Grid.Column="2" Grid.Row="16" Grid.ColumnSpan="2" Text="{Binding Path=BackupEngine.FailedFileCount, StringFormat=n0}"/>
+		<TextBlock Grid.Column="0" Grid.Row="18" HorizontalAlignment="Right">Estimated time left:</TextBlock>
+		<TextBlock Grid.Column="2" Grid.Row="18" Grid.ColumnSpan="2" Text="{Binding Path=BackupEngine.TimeLeft, Converter={StaticResource TimeSpanValueConverter}}"/>
+		<ProgressBar Grid.Column="0" Grid.Row="20" Grid.ColumnSpan="4" Maximum="{Binding Path=BackupEngine.TotalData}" Value="{Binding Path=BackupEngine.CurrentTransferedData, Mode=OneWay}"/>
+		<Button Grid.Column="3" Grid.Row="22" IsCancel="True">Cancel</Button>
+	</Grid>
 </Window>

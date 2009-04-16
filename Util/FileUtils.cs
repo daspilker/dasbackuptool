@@ -6,7 +6,18 @@ namespace DasBackupTool.Util
     {
         public static bool IsDirectory(string path)
         {
-            return (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory;
+            try
+            {
+                return (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory;
+            }
+            catch (FileNotFoundException)
+            {
+                return false;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return false;
+            }
         }
 
         public static bool IsArchive(string path)

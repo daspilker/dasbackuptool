@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Markup;
 using DasBackupTool.Model;
 using DasBackupTool.Properties;
 
@@ -16,6 +18,7 @@ namespace DasBackupTool.Ui
 
             InitializeComponent();
             DataContext = this;
+            Language = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag);
 
             Settings.Default.PropertyChanged += SettingsChanged;
         }

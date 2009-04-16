@@ -9,10 +9,6 @@
 		<CommandBinding Command="ui:Commands.Backup" CanExecute="BackupCanExecute" Executed="BackupExecuted"/>
 		<CommandBinding Command="ui:Commands.ViewDetails" CanExecute="ViewDetailsCanExecute" Executed="ViewDetailsExecuted"/>
 	</Window.CommandBindings>
-	<Window.Resources>
-		<ui:FileCountValueConverter x:Key="FileCountValueConverter"/>
-		<ui:FileSizeValueConverter x:Key="FileSizeValueConverter"/>
-	</Window.Resources>
 
 	<DockPanel>
 		<StatusBar DockPanel.Dock="Bottom">
@@ -52,25 +48,25 @@
 
 			<Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold">Local files</Label>
 			<Label Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right">Count:</Label>
-			<Label Grid.Column="1" Grid.Row="2" Content="{Binding Path=Files.LocalRepositoryStatistics.FileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="2" Content="{Binding Path=Files.LocalRepositoryStatistics.FileCount}" ContentStringFormat="n0"/>
 			<Label Grid.Column="0" Grid.Row="4" HorizontalAlignment="Right">Total size:</Label>
-			<Label Grid.Column="1" Grid.Row="4" Content="{Binding Path=Files.LocalRepositoryStatistics.TotalFileSize, Converter={StaticResource FileSizeValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="4" Content="{Binding Path=Files.LocalRepositoryStatistics.TotalFileSize}" ContentStringFormat="{}{0:n0} bytes"/>
 			<Button Grid.Column="2" Grid.Row="0" Grid.RowSpan="5" VerticalAlignment="Bottom" Command="ui:Commands.SelectBackupLocations" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
 			<Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" FontWeight="Bold">Remote files</Label>
 			<Label Grid.Column="0" Grid.Row="8" HorizontalAlignment="Right">Count:</Label>
-			<Label Grid.Column="1" Grid.Row="8" Content="{Binding Path=Files.RemoteRepositoryStatistics.FileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="8" Content="{Binding Path=Files.RemoteRepositoryStatistics.FileCount}" ContentStringFormat="n0"/>
 			<Label Grid.Column="0" Grid.Row="10" HorizontalAlignment="Right">Total size:</Label>
-			<Label Grid.Column="1" Grid.Row="10" Content="{Binding Path=Files.RemoteRepositoryStatistics.TotalFileSize, Converter={StaticResource FileSizeValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="10" Content="{Binding Path=Files.RemoteRepositoryStatistics.TotalFileSize}" ContentStringFormat="{}{0:n0} bytes"/>
 			<Button Grid.Column="2" Grid.Row="6" Grid.RowSpan="5" VerticalAlignment="Bottom" Command="ui:Commands.ConfigureBucket" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
 			<Label Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2" FontWeight="Bold">Difference</Label>
 			<Label Grid.Column="0" Grid.Row="14" HorizontalAlignment="Right">New files:</Label>
-			<Label Grid.Column="1" Grid.Row="14" Content="{Binding Path=Files.LocalRepositoryStatistics.NewFileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="14" Content="{Binding Path=Files.LocalRepositoryStatistics.NewFileCount}" ContentStringFormat="n0"/>
 			<Label Grid.Column="0" Grid.Row="16" HorizontalAlignment="Right">Updated files:</Label>
-			<Label Grid.Column="1" Grid.Row="16" Content="{Binding Path=Files.LocalRepositoryStatistics.UpdatedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="16" Content="{Binding Path=Files.LocalRepositoryStatistics.UpdatedFileCount}" ContentStringFormat="n0"/>
 			<Label Grid.Column="0" Grid.Row="18" HorizontalAlignment="Right">Deleted Files:</Label>
-			<Label Grid.Column="1" Grid.Row="18" Content="{Binding Path=Files.LocalRepositoryStatistics.DeletedFileCount, Converter={StaticResource FileCountValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="18" Content="{Binding Path=Files.LocalRepositoryStatistics.DeletedFileCount}" ContentStringFormat="n0"/>
 			<Label Grid.Column="0" Grid.Row="20" HorizontalAlignment="Right">Transfer file size:</Label>
-			<Label Grid.Column="1" Grid.Row="20" Content="{Binding Path=Files.LocalRepositoryStatistics.TransferFileSize, Converter={StaticResource FileSizeValueConverter}}"/>
+			<Label Grid.Column="1" Grid.Row="20" Content="{Binding Path=Files.LocalRepositoryStatistics.TransferFileSize}"  ContentStringFormat="{}{0:n0} bytes"/>
 			<StackPanel Grid.Column="2" Grid.Row="12" Grid.RowSpan="9" VerticalAlignment="Bottom">
 				<Button Command="ui:Commands.ViewDetails" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
 				<Button Command="ui:Commands.Backup" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" Margin="0,6,0,0"/>

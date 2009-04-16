@@ -1,72 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using DasBackupTool.Util;
-using System.Text;
 using Microsoft.Win32;
-using System.Diagnostics;
 
 namespace DasBackupTool.Ui
 {
-    public class FileCountValueConverter : IValueConverter
-    {
-        private NumberFormatInfo numberFormat;
-
-        public FileCountValueConverter()
-        {
-            numberFormat = (NumberFormatInfo)CultureInfo.CurrentCulture.NumberFormat.Clone();
-            numberFormat.NumberDecimalDigits = 0;
-        }
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return ((long)value).ToString("n", numberFormat);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class FileSizeValueConverter : IValueConverter
-    {
-        private NumberFormatInfo numberFormat;
-        private bool showUnit = true;
-
-        public FileSizeValueConverter()
-        {
-            numberFormat = (NumberFormatInfo)CultureInfo.CurrentCulture.NumberFormat.Clone();
-            numberFormat.NumberDecimalDigits = 0;
-        }
-
-        public bool ShowUnit
-        {
-            get { return showUnit; }
-            set { showUnit = value; }
-        }
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return ((long)value).ToString("n", numberFormat) + (showUnit ? " bytes" : "");
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public class FileIconValueConverter : IValueConverter
     {
         private static ImageSource directoryImageSource;
         private static ImageSource fileImageSource;
+        private static IDictionary<String, String> fileTypes = new Dictionary<String, String>();
+        private static IDictionary<String, String> libraryAndIndices = new Dictionary<String, String>();
+        private static IDictionary<String, ImageSource> icons = new Dictionary<String, ImageSource>();
 
         static FileIconValueConverter()
         {
@@ -84,45 +38,35 @@ namespace DasBackupTool.Ui
             }
             else
             {
-                DateTime start = DateTime.Now;
-                string extension = new FileInfo((string)value).Extension;
-                RegistryKey key = Registry.ClassesRoot.OpenSubKey(extension);
-                if (key != null)
+                string fileType = GetFileType(new FileInfo((string)value).Extension);
+                if (fileType != null)
                 {
-                    string fileType = (string)key.GetValue(null);
-                    if (fileType != null)
+                    string libraryAndIndex = GetLibraryAndIndex(fileType);
+                    if (libraryAndIndex != null)
                     {
-                        key = Registry.ClassesRoot.OpenSubKey(fileType + "\\DefaultIcon");
-                        if (key != null)
+                        string library;
+                        int index;
+                        if (libraryAndIndex == "%1" || libraryAndIndex == "\"%1\"")
                         {
-                            string libraryAndIndex = (string)key.GetValue(null);
-                            if (libraryAndIndex != null)
-                            {
-                                string library;
-                                int index;
-                                if (libraryAndIndex == "%1" || libraryAndIndex == "\"%1\"")
-                                {
-                                    library = (string)value;
-                                    index = 0;
-                                }
-                                else if (libraryAndIndex.ToLower().EndsWith(".ico"))
-                                {
-                                    library = libraryAndIndex;
-                                    index = 0;
-                                }
-                                else
-                                {
-                                    int commaPos = libraryAndIndex.LastIndexOf(",");
-                                    library = libraryAndIndex.Substring(0, commaPos);
-                                    index = int.Parse(libraryAndIndex.Substring(commaPos + 1));
-                                }
-                                DateTime end = DateTime.Now;
-                                Debug.Print("registry lookup took " + (end - start));
-                                result = ExtractIcon(library, index);
-                            }
+                            library = (string)value;
+                            index = 0;
                         }
+                        else if (libraryAndIndex.ToLower().EndsWith(".ico"))
+                        {
+                            library = libraryAndIndex;
+                            index = 0;
+                        }
+                        else
+                        {
+                            int commaPos = libraryAndIndex.LastIndexOf(",");
+                            library = libraryAndIndex.Substring(0, commaPos);
+                            index = int.Parse(libraryAndIndex.Substring(commaPos + 1));
+                        }
+                        DateTime end = DateTime.Now;
+                        result = ExtractIcon(library, index);
                     }
                 }
+
             }
             if (result == null)
             {
@@ -136,6 +80,82 @@ namespace DasBackupTool.Ui
             throw new NotImplementedException();
         }
 
+        private static string GetFileType(string extension)
+        {
+            string result = null;
+            if (fileTypes.ContainsKey(extension))
+            {
+                result = fileTypes[extension];
+            }
+            else
+            {
+                RegistryKey key = Registry.ClassesRoot.OpenSubKey(extension);
+                if (key != null)
+                {
+                    result = (string)key.GetValue(null);
+                }
+                fileTypes[extension] = result;
+            }
+            return result;
+        }
+
+        private static string GetLibraryAndIndex(string fileType)
+        {
+            string result = null;
+            if (libraryAndIndices.ContainsKey(fileType))
+            {
+                result = libraryAndIndices[fileType];
+            }
+            else
+            {
+                RegistryKey key = Registry.ClassesRoot.OpenSubKey(fileType + "\\DefaultIcon");
+                if (key != null)
+                {
+                    result = (string)key.GetValue(null);
+                }
+                libraryAndIndices[fileType] = result;
+            }
+            return result;
+        }
+
+        private static ImageSource GetIcon(string libraryAndIndex, string path)
+        {
+            ImageSource result = null;
+            if (icons.ContainsKey(libraryAndIndex))
+            {
+                result = icons[libraryAndIndex];
+            }
+            else
+            {
+                string library;
+                int index;
+                bool cache = true;
+                if (libraryAndIndex == "%1" || libraryAndIndex == "\"%1\"")
+                {
+                    library = path;
+                    index = 0;
+                    cache = false;
+                }
+                else if (libraryAndIndex.ToLower().EndsWith(".ico"))
+                {
+                    library = libraryAndIndex;
+                    index = 0;
+                }
+                else
+                {
+                    int commaPos = libraryAndIndex.LastIndexOf(",");
+                    library = libraryAndIndex.Substring(0, commaPos);
+                    index = int.Parse(libraryAndIndex.Substring(commaPos + 1));
+                }
+                result = ExtractIcon(library, index);
+                if (cache)
+                {
+                    icons[libraryAndIndex] = result;
+                }
+            }
+            return result;
+        }
+
         [DllImport("Shell32.dll")]
         private extern static int ExtractIconEx(string libName, int iconIndex, IntPtr[] largeIcon, IntPtr[] smallIcon, int nIcons);
 
@@ -144,7 +164,6 @@ namespace DasBackupTool.Ui
 
         private static BitmapSource ExtractIcon(string libraryName, int index)
         {
-            DateTime start = DateTime.Now;
             IntPtr[] smallIcon = new IntPtr[1];
             int result = ExtractIconEx(libraryName, index, null, smallIcon, 1);
             if (result == 0) return null;
@@ -166,8 +185,6 @@ namespace DasBackupTool.Ui
             finally
             {
                 DestroyIcon(smallIcon[0]);
-                DateTime end = DateTime.Now;
-                Debug.Print("extract icon took " + (end - start));
             }
         }
     }

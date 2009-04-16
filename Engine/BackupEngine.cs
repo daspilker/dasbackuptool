@@ -20,6 +20,8 @@ namespace DasBackupTool.Engine
         private long transferedData;
         private long totalFileCount;
         private long totalData;
+        private long failedFileCount;
+        private long failedData;
         private DateTime currentFileStartTime;
         private DateTime startTime;
 
@@ -30,6 +32,7 @@ namespace DasBackupTool.Engine
 
             executor = new AbortableTaskExecutor(Backup);
             retryHelper = new RetryHelper();
+            retryHelper.ExceptionOccured += ExceptionOccured;
         }
 
         public long TransferedFileCount
@@ -59,11 +62,6 @@ namespace DasBackupTool.Engine
             }
         }
 
-        public long CurrentTransferedData
-        {
-            get { return TransferedData + CurrentFileProgress; }
-        }
-
         public long TotalFileCount
         {
             get { return totalFileCount; }
@@ -86,6 +84,33 @@ namespace DasBackupTool.Engine
                 {
                     totalData = value;
                     NotifyPropertyChanged("TotalData");
+                }
+            }
+        }
+
+        public long FailedFileCount
+        {
+            get { return failedFileCount; }
+            set
+            {
+                if (failedFileCount != value)
+                {
+                    failedFileCount = value;
+                    NotifyPropertyChanged("FailedFileCount");
+                }
+            }
+        }
+
+        public long FailedData
+        {
+            get { return failedData; }
+            set
+            {
+                if (failedData != value)
+                {
+                    failedData = value;
+                    NotifyPropertyChanged("FailedData");
+                    NotifyPropertyChanged("TimeLeft");
                 }
             }
         }
@@ -121,6 +146,11 @@ namespace DasBackupTool.Engine
             }
         }
 
+        public long CurrentTransferedData
+        {
+            get { return transferedData + currentFileProgress; }
+        }
+
         public TimeSpan CurrentFileTimeLeft
         {
             get
@@ -133,7 +163,7 @@ namespace DasBackupTool.Engine
         {
             get
             {
-                return EstimateTimeLeft(startTime, CurrentTransferedData, TotalData);
+                return EstimateTimeLeft(startTime, CurrentTransferedData, totalData - failedData);
             }
         }
 
@@ -171,12 +201,31 @@ namespace DasBackupTool.Engine
                 foreach (BackupFile file in files.NewOrUpdatedFiles)
                 {
                     executor.CheckAbortion();
-                    retryHelper.Retry(PutObject, s3, file);
+                    bool success = retryHelper.Retry(PutObject, s3, file);
+                    if (success)
+                    {
+                        files.FileBackedUp(file.Path);
+                        TransferedFileCount++;
+                        TransferedData += file.LocalAttributes.Size;
+                        File.SetAttributes(file.Path, File.GetAttributes(file.Path) & ~FileAttributes.Archive);
+                    }
+                    else
+                    {
+                        FailedFileCount++;
+                    }
                 }
                 foreach (BackupFile file in files.DeletedFiles)
                 {
                     executor.CheckAbortion();
-                    retryHelper.Retry(DeleteObject, s3, file);
+                    bool success = retryHelper.Retry(DeleteObject, s3, file);
+                    if (success)
+                    {
+                        files.FileBackedUp(file.Path);
+                    }
+                    else
+                    {
+                        FailedFileCount++;
+                    }
                 }
             }
             finally
@@ -195,11 +244,7 @@ namespace DasBackupTool.Engine
             {
                 fileStream.ProgressChanged += ProgressChanged;
                 s3.PutObject(Settings.Default.Bucket.BucketName, GetObjectName(file.Path), fileStream, file.LocalAttributes.Size, file.ContentType);
-                files.FileBackedUp(file.Path);
-                TransferedFileCount++;
-                TransferedData += fileStream.Length;
             }
-            File.SetAttributes(file.Path, File.GetAttributes(file.Path) & ~FileAttributes.Archive);
         }
 
         private void DeleteObject(params object[] args)
@@ -209,7 +254,11 @@ namespace DasBackupTool.Engine
 
             CurrentFile = file;
             s3.DeleteObject(Settings.Default.Bucket.BucketName, GetObjectName(file.Path));
-            files.FileBackedUp(file.Path);
+        }
+
+        private void ExceptionOccured(object sender, ExceptionOccuredEventArgs e)
+        {
+            e.Retry = e.RetryCount < 2;
         }
 
         private void ProgressChanged(object sender, ProgressChangedEventArgs e)

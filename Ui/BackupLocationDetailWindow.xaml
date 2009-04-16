@@ -13,7 +13,6 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
-        <ui:FileSizeValueConverter x:Key="FileSizeValueConverter" ShowUnit="false"/>
     </Window.Resources>
 
     <Grid Margin="12,12,12,12">
@@ -46,7 +45,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}"/>
+                                        <ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}" Width="16"/>
                                         <TextBlock Text="{Binding Path=Path}" ToolTip="{Binding Path=Path}" Margin="3,0,0,0"/>
                                     </StackPanel>
                                 </DataTemplate>
@@ -55,7 +54,7 @@
                         <GridViewColumn Header="Size (bytes)">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Path=LocalAttributes.Size, Converter={StaticResource FileSizeValueConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding Path=LocalAttributes.Size, StringFormat=n0}" HorizontalAlignment="Right"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
