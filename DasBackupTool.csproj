@@ -55,6 +55,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -133,6 +134,7 @@
     <Compile Include="Ui\BackupProgressWindow.xaml.cs">
       <DependentUpon>BackupProgressWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Ui\SnapToPixelsImage.cs" />
     <Compile Include="Ui\BucketConfigurationWindow.xaml.cs">
       <DependentUpon>BucketConfigurationWindow.xaml</DependentUpon>
     </Compile>
