@@ -34,11 +34,18 @@ namespace DasBackupTool.Aws
             }
         }
 
-        public void CreateBucket(string bucket)
+        public void CreateBucket(string bucket, S3LocationConstraint locationConstaint)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(S3_BASE_URL + bucket);
             request.Method = "PUT";
-            request.ContentLength = 0;
+            if (locationConstaint != S3LocationConstraint.None)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                request.ContentLength = 0;
+            }
             HttpWebResponse response = Send(request, null, HttpStatusCode.OK);
             response.Close();
         }
@@ -297,6 +304,8 @@ namespace DasBackupTool.Aws
         }
     }
 
+    public enum S3LocationConstraint { None, EU };
+
     public interface IS3Bucket
     {
         string Name { get; }
@@ -314,5 +323,10 @@ namespace DasBackupTool.Aws
     public class S3Exception : Exception
     {
         public S3Exception(string message, Exception exception) : base(message, exception) { }
+
+        public string ErrorCode
+        {
+            get { return Data.Contains("Code") ? (string)Data["Code"] : null; }
+        }
     }
 }

@@ -94,6 +94,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Ui\CreateBucketWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ui\DetailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -135,6 +139,9 @@
       <DependentUpon>BackupProgressWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\CommandButton.cs" />
+    <Compile Include="Ui\CreateBucketWindow.xaml.cs">
+      <DependentUpon>CreateBucketWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Ui\SnapToPixelsImage.cs" />
     <Compile Include="Ui\BucketConfigurationWindow.xaml.cs">
       <DependentUpon>BucketConfigurationWindow.xaml</DependentUpon>
