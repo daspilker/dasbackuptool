@@ -59,8 +59,16 @@ namespace DasBackupTool.Ui
                         else
                         {
                             int commaPos = libraryAndIndex.LastIndexOf(",");
-                            library = libraryAndIndex.Substring(0, commaPos);
-                            index = int.Parse(libraryAndIndex.Substring(commaPos + 1));
+                            if (commaPos == -1)
+                            {
+                                library = libraryAndIndex;
+                                index = 0;
+                            }
+                            else
+                            {
+                                library = libraryAndIndex.Substring(0, commaPos);
+                                index = int.Parse(libraryAndIndex.Substring(commaPos + 1));
+                            }
                         }
                         DateTime end = DateTime.Now;
                         result = ExtractIcon(library, index);

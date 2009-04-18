@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.IO;
+using DasBackupTool.Util;
 
 namespace DasBackupTool.Model
 {
@@ -63,6 +65,11 @@ namespace DasBackupTool.Model
         public string Path
         {
             get { return path; }
+        }
+
+        public bool Exists
+        {
+            get { return FileUtils.Exists(path); }
         }
 
         public bool Excluded

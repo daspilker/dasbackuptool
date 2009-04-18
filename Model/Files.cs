@@ -141,7 +141,7 @@ namespace DasBackupTool.Model
                 localRepositoryStatistics.DeletedFileCount = files.Values.Count(f => f.Status == BackupFileStatus.Deleted);
                 localRepositoryStatistics.TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
                 localRepositoryStatistics.FileCount = localRepositoryStatistics.UpdatedFileCount + localRepositoryStatistics.NewFileCount + notModifiedFiles.Count();
-                localRepositoryStatistics.TotalFileSize = localRepositoryStatistics.TransferFileSize + notModifiedFiles.Sum(f => f.LocalAttributes.Size);
+                localRepositoryStatistics.TotalFileSize = localRepositoryStatistics.TransferFileSize + notModifiedFiles.Sum(f => f.LocalAttributes == null ? 0 : f.LocalAttributes.Size);
                 IEnumerable<BackupFile> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
                 remoteRepositoryStatistics.FileCount = remoteFiles.Count();
                 remoteRepositoryStatistics.TotalFileSize = remoteFiles.Sum(f => f.RemoteAttributes.Size);

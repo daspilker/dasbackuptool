@@ -24,5 +24,10 @@ namespace DasBackupTool.Util
         {
             return (File.GetAttributes(path) & FileAttributes.Archive) == FileAttributes.Archive;
         }
+
+        public static bool Exists(string path)
+        {
+            return File.Exists(path) || Directory.Exists(path);
+        }
     }
 }
