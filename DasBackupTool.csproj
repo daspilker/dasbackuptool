@@ -134,6 +134,7 @@
     <Compile Include="Ui\BackupProgressWindow.xaml.cs">
       <DependentUpon>BackupProgressWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Ui\CommandButton.cs" />
     <Compile Include="Ui\SnapToPixelsImage.cs" />
     <Compile Include="Ui\BucketConfigurationWindow.xaml.cs">
       <DependentUpon>BucketConfigurationWindow.xaml</DependentUpon>

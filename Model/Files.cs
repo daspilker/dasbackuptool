@@ -133,15 +133,15 @@ namespace DasBackupTool.Model
         {
             lock (files)
             {
-                IEnumerable<BackupFile> localFiles = files.Values.Where(f => f.LocalAttributes != null);
                 IEnumerable<BackupFile> newFiles = files.Values.Where(f => f.Status == BackupFileStatus.New);
                 IEnumerable<BackupFile> updatedFiles = files.Values.Where(f => f.Status == BackupFileStatus.Updated);
-                localRepositoryStatistics.FileCount = localFiles.Count();
-                localRepositoryStatistics.TotalFileSize = localFiles.Sum(f => f.LocalAttributes.Size);
+                IEnumerable<BackupFile> notModifiedFiles = files.Values.Where(f => f.Status == BackupFileStatus.NotModified);
                 localRepositoryStatistics.NewFileCount = newFiles.Count();
                 localRepositoryStatistics.UpdatedFileCount = updatedFiles.Count();
                 localRepositoryStatistics.DeletedFileCount = files.Values.Count(f => f.Status == BackupFileStatus.Deleted);
                 localRepositoryStatistics.TransferFileSize = newFiles.Sum(f => f.LocalAttributes.Size) + updatedFiles.Sum(f => f.LocalAttributes.Size);
+                localRepositoryStatistics.FileCount = localRepositoryStatistics.UpdatedFileCount + localRepositoryStatistics.NewFileCount + notModifiedFiles.Count();
+                localRepositoryStatistics.TotalFileSize = localRepositoryStatistics.TransferFileSize + notModifiedFiles.Sum(f => f.LocalAttributes.Size);
                 IEnumerable<BackupFile> remoteFiles = files.Values.Where(f => f.RemoteAttributes != null);
                 remoteRepositoryStatistics.FileCount = remoteFiles.Count();
                 remoteRepositoryStatistics.TotalFileSize = remoteFiles.Sum(f => f.RemoteAttributes.Size);

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
 using DasBackupTool.Engine;
@@ -87,6 +88,14 @@ namespace DasBackupTool.Ui
         private void BackupProgressChanged(object sender, PropertyChangedEventArgs e)
         {
             Dispatcher.BeginInvoke(new DispatcherInvokeNoResultHandler(CommandManager.InvalidateRequerySuggested));
+        }
+
+        private void BackupButtonEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool) e.NewValue == true)
+            {
+                ((Button)sender).Focus();
+            }
         }
     }
 }

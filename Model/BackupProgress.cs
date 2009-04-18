@@ -32,17 +32,17 @@ namespace DasBackupTool.Model
                     switch (action)
                     {
                         case BackupAction.ListingBucket:
-                            message += "listing remote files, ";
+                            message += "counting remote files, ";
                             break;
                         case BackupAction.ListingLocal:
-                            message += "listing local files, ";
+                            message += "counting local files, ";
                             break;
                         case BackupAction.RunningBackup:
                             message += "running backup, ";
                             break;
                     }
                 }
-                return message.Length == 0 ? "" : message.Substring(0, message.Length - 2);
+                return message.Length == 0 ? "Ready" : message.Substring(0,1).ToUpper() + message.Substring(1, message.Length - 3);
             }
         }
 
