@@ -37,13 +37,7 @@
 		<TextBlock Grid.Row="2" Text="Secret Access Key:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 		<TextBox Name="SecretAccessKeyIdTextBox" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Text="{Binding Path=SecretAccessKey, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" MaxLength="40"/>
 		<TextBlock Grid.Row="4" Text="Buckets:" HorizontalAlignment="Right"/>
-		<ListBox Name="BucketListBox" Grid.Row="4" Grid.Column="2" ItemsSource="{Binding Source={StaticResource Buckets}}" SelectedValue="{Binding Path=Bucket}" SelectedValuePath="Name">
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<TextBlock Text="{Binding Path=Name}"/>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
+		<ListBox Name="BucketListBox" Grid.Row="4" Grid.Column="2" ItemsSource="{Binding Source={StaticResource Buckets}}" SelectedValue="{Binding Path=Bucket}" SelectedValuePath="Name" DisplayMemberPath="Name"/>
 		<Button Grid.Row="4" Grid.Column="3" Margin="6,0,0,0" VerticalAlignment="Top" Command="ui:Commands.CreateBucket"/>
 		<StackPanel Grid.Row="6" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Margin="0,0,6,0" IsDefault="True" Command="ui:Commands.SaveBucketConfiguration"/>

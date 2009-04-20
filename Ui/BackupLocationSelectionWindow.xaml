@@ -39,13 +39,12 @@
 		<ListView Name="BackupLocationsListView" Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding Source={StaticResource BackupLocations}}" AllowDrop="True" Drop="BackupLocationsListBoxDrop">
 			<ListView.View>
 				<GridView>
-					<GridView.Columns>
-						<GridViewColumn Header="File Name" Width="315">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<StackPanel Orientation="Horizontal" ToolTip="{Binding Path=Path}">
-										<ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}" Width="16"/>
-										<TextBlock Text="{Binding Path=Path}" Margin="3,0,0,0">
+					<GridViewColumn Header="File Name" Width="315">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<StackPanel Orientation="Horizontal" ToolTip="{Binding Path=Path}">
+									<ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}" Width="16"/>
+									<TextBlock Text="{Binding Path=Path}" Margin="3,0,0,0">
 											<TextBlock.Style>
 												<Style TargetType="TextBlock">
 													<Style.Triggers>
@@ -56,19 +55,18 @@
 													</Style.Triggers>
 												</Style>
 											</TextBlock.Style>
-										</TextBlock>
-									</StackPanel>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-						<GridViewColumn Header="Excluded" Width="60">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<CheckBox IsChecked="{Binding Path=Excluded}" HorizontalAlignment="Center"/>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-					</GridView.Columns>
+									</TextBlock>
+								</StackPanel>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="Excluded" Width="60">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<CheckBox IsChecked="{Binding Path=Excluded}" HorizontalAlignment="Center"/>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
 				</GridView>
 			</ListView.View>
 			<ListView.ContextMenu>

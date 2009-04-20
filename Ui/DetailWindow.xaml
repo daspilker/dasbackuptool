@@ -16,67 +16,65 @@
 		<ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
 	</Window.Resources>
 
-	<DockPanel Margin="12,12,12,12"> 
+	<DockPanel Margin="12,12,12,12">
 		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
 			<Button IsDefault="True" IsCancel="True" Content="Close"/>
 		</StackPanel>
 		<ListView Name="BackupLocationsListView" ItemsSource="{Binding Source={StaticResource BackupLocationStatistics}}" SelectionMode="Single" MouseDoubleClick="BackupLocationsListViewMouseDoubleClick">
 			<ListView.View>
 				<GridView>
-					<GridView.Columns>
-						<GridViewColumn Header="Path" Width="300">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<StackPanel Orientation="Horizontal">
-										<ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}"/>
-										<TextBlock Text="{Binding Path=Path}" ToolTip="{Binding Path=Path}" Margin="3,0,0,0"/>
-									</StackPanel>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-						<GridViewColumn Header="Files" Width="48">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding Path=FileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-						<GridViewColumn Header="Size (bytes)" Width="96">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding Path=TotalFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-						<GridViewColumn Header="New" Width="54">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding Path=NewFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-						<GridViewColumn Header="Updated" Width="54">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding Path=UpdatedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-						<GridViewColumn Header="Deleted" Width="54">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding Path=DeletedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-						<GridViewColumn Header="Transfer Size (bytes)" Width="116">
-							<GridViewColumn.CellTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding Path=TransferFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
-								</DataTemplate>
-							</GridViewColumn.CellTemplate>
-						</GridViewColumn>
-					</GridView.Columns>
+					<GridViewColumn Header="Path" Width="300">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<StackPanel Orientation="Horizontal">
+									<ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}"/>
+									<TextBlock Text="{Binding Path=Path}" ToolTip="{Binding Path=Path}" Margin="3,0,0,0"/>
+								</StackPanel>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="Files" Width="48">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=FileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="Size (bytes)" Width="96">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=TotalFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="New" Width="54">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=NewFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="Updated" Width="54">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=UpdatedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="Deleted" Width="54">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=DeletedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="Transfer Size (bytes)" Width="116">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=TransferFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
 				</GridView>
 			</ListView.View>
 			<ListView.ContextMenu>
