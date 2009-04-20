@@ -50,7 +50,7 @@ namespace DasBackupTool.Engine
                         foreach (IS3Object file in s3.ListObjects(Settings.Default.Bucket.BucketName))
                         {
                             executor.CheckAbortion();
-                            remoteFiles.Add(GetFileName(file.Key), new BackupFileAttributes(file.Size, file.LastModified, file.ETag, null));
+                            remoteFiles.Add(GetFileName(file.Key), new BackupFileAttributes(file.Size, file.LastModified, file.ETag));
                             if (remoteFiles.Count == 1000)
                             {
                                 files.AddRemoteFiles(remoteFiles);

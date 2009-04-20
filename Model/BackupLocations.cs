@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.IO;
+using System.Windows.Media.Imaging;
 using DasBackupTool.Util;
 
 namespace DasBackupTool.Model
@@ -69,7 +69,17 @@ namespace DasBackupTool.Model
 
         public bool Exists
         {
-            get { return FileUtils.Exists(path); }
+            get { return new DasFile(path).Exists; }
+        }
+
+        public BitmapImage Icon
+        {
+            get { return new DasFile(path).Icon; }
+        }
+
+        public bool IsDirectory
+        {
+            get { return new DasFile(path).IsDirectory; }
         }
 
         public bool Excluded

@@ -5,7 +5,6 @@
     Title="Backup Progress" ResizeMode="CanResize" SizeToContent="Height" Width="600" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Loaded="WindowLoaded">
 	<Window.Resources>
 		<ui:TimeSpanValueConverter x:Key="TimeSpanValueConverter"/>
-		<ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
 	</Window.Resources>
 
 	<Grid Margin="12,12,12,12">
@@ -51,7 +50,7 @@
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
-			<Image Source="{Binding Path=BackupEngine.CurrentFile.Path, Converter={StaticResource FileIconValueConverter}}" Margin="0,0,3,0"/>
+			<Image Source="{Binding Path=BackupEngine.CurrentFile.Icon}" Margin="0,0,3,0"/>
 			<TextBlock Grid.Column="1" Text="{Binding Path=BackupEngine.CurrentFile.Path}" TextTrimming="CharacterEllipsis"/>
 		</Grid>
 		<TextBlock Grid.Column="0" Grid.Row="4" HorizontalAlignment="Right">Data transfered:</TextBlock>

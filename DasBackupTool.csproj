@@ -129,6 +129,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Aws\S3.cs" />
+    <Compile Include="Ui\AnimatedExpander.cs" />
     <Compile Include="Ui\BackupLocationDetailWindow.xaml.cs">
       <DependentUpon>BackupLocationDetailWindow.xaml</DependentUpon>
     </Compile>

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Media.Imaging;
 using DasBackupTool.Properties;
-using Microsoft.Win32;
+using DasBackupTool.Util;
 
 namespace DasBackupTool.Model
 {
@@ -303,6 +303,11 @@ namespace DasBackupTool.Model
             get { return path; }
         }
 
+        public BitmapImage Icon
+        {
+            get { return new DasFile(path).Icon; }
+        }
+
         public ICollection<BackupFile> Files
         {
             get { return files; }
@@ -346,19 +351,12 @@ namespace DasBackupTool.Model
 
         public string ContentType
         {
-            get
-            {
-                RegistryKey key = Registry.ClassesRoot.OpenSubKey(new FileInfo(path).Extension);
-                if (key != null)
-                {
-                    object value = key.GetValue("Content Type");
-                    if (value != null)
-                    {
-                        return value.ToString();
-                    }
-                }
-                return "application/octet-stream";
-            }
+            get { return new DasFile(path).ContentType; }
+        }
+
+        public BitmapImage Icon
+        {
+            get { return new DasFile(path).Icon; }
         }
 
         public BackupFileStatus Status
@@ -423,14 +421,12 @@ namespace DasBackupTool.Model
         private long size;
         private DateTime modificationDate;
         private string md5;
-        private bool? archive;
 
-        public BackupFileAttributes(long size, DateTime modificationDate, string md5, bool? archive)
+        public BackupFileAttributes(long size, DateTime modificationDate, string md5)
         {
             this.size = size;
             this.modificationDate = modificationDate;
             this.md5 = md5;
-            this.archive = archive;
         }
 
         public long Size
@@ -446,11 +442,6 @@ namespace DasBackupTool.Model
         public string MD5
         {
             get { return md5; }
-        }
-
-        public bool? Archive
-        {
-            get { return archive; }
         }
     }
 

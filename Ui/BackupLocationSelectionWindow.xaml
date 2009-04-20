@@ -17,7 +17,6 @@
 				<scm:SortDescription PropertyName="Path"/>
 			</CollectionViewSource.SortDescriptions>
 		</CollectionViewSource>
-		<ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
 	</Window.Resources>
 
 	<Grid Margin="12,12,12,12">
@@ -43,7 +42,7 @@
 						<GridViewColumn.CellTemplate>
 							<DataTemplate>
 								<StackPanel Orientation="Horizontal" ToolTip="{Binding Path=Path}">
-									<ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}" Width="16"/>
+									<ui:SnapToPixelsImage Source="{Binding Path=Icon}" Width="16"/>
 									<TextBlock Text="{Binding Path=Path}" Margin="3,0,0,0">
 											<TextBlock.Style>
 												<Style TargetType="TextBlock">

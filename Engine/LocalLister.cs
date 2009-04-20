@@ -49,9 +49,9 @@ namespace DasBackupTool.Engine
                     foreach (BackupLocation backupLocation in Settings.Default.BackupLocations.IncludedLocations)
                     {
                         executor.CheckAbortion();
-                        try
+                        if (backupLocation.Exists)
                         {
-                            if (FileUtils.IsDirectory(backupLocation.Path))
+                            if (backupLocation.IsDirectory)
                             {
                                 ListDirectory(new DirectoryInfo(backupLocation.Path));
                             }
@@ -59,10 +59,6 @@ namespace DasBackupTool.Engine
                             {
                                 ListFile(new FileInfo(backupLocation.Path));
                             }
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            // todo
                         }
                     }
                     CommitFiles();
@@ -103,7 +99,7 @@ namespace DasBackupTool.Engine
 
         private void ListFile(FileInfo file)
         {
-            localFiles.Add(file.FullName, new BackupFileAttributes(file.Length, file.LastWriteTimeUtc, null, FileUtils.IsArchive(file.FullName)));
+            localFiles.Add(file.FullName, new BackupFileAttributes(file.Length, file.LastWriteTimeUtc, null));
             if (localFiles.Count == 1000)
             {
                 CommitFiles();
