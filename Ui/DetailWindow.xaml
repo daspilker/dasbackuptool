@@ -3,11 +3,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
     xmlns:ui="clr-namespace:DasBackupTool.Ui"
-    Title="Detail View" SizeToContent="WidthAndHeight" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
-    <Window.CommandBindings>
-        <CommandBinding Command="ui:Commands.ViewBackupLocationDetails" CanExecute="ViewBackupLocationDetailsCanExecute" Executed="ViewBackupLocationDetailsExecuted"/>
-    </Window.CommandBindings>
-    <Window.Resources>
+    Title="Backup Location Detail Overview" MinWidth="600" MinHeight="210" Width="792" Height="600" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+	<Window.CommandBindings>
+		<CommandBinding Command="ui:Commands.ViewBackupLocationDetails" CanExecute="ViewBackupLocationDetailsCanExecute" Executed="ViewBackupLocationDetailsExecuted"/>
+	</Window.CommandBindings>
+	<Window.Resources>
 		<CollectionViewSource x:Key="BackupLocationStatistics" Source="{Binding Path=Files.BackupLocationStatistics}">
 			<CollectionViewSource.SortDescriptions>
 				<scm:SortDescription PropertyName="Path"/>
@@ -15,63 +15,61 @@
 		</CollectionViewSource>
 		<ui:FileIconValueConverter x:Key="FileIconValueConverter"/>
 	</Window.Resources>
-	
-	<StackPanel Margin="12,12,12,12">
-		<ListView Name="BackupLocationsListView" MinHeight="150" ItemsSource="{Binding Source={StaticResource BackupLocationStatistics}}" ui:ListViewBehaviors.IsAutoUpdatingColumnWidths="true" SelectionMode="Single" MouseDoubleClick="BackupLocationsListViewMouseDoubleClick">
-			<ListView.ItemContainerStyle>
-				<Style TargetType="ListViewItem">
-					<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-				</Style>
-			</ListView.ItemContainerStyle>
+
+	<DockPanel Margin="12,12,12,12"> 
+		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+			<Button IsDefault="True" IsCancel="True" Content="Close"/>
+		</StackPanel>
+		<ListView Name="BackupLocationsListView" ItemsSource="{Binding Source={StaticResource BackupLocationStatistics}}" SelectionMode="Single" MouseDoubleClick="BackupLocationsListViewMouseDoubleClick">
 			<ListView.View>
 				<GridView>
 					<GridView.Columns>
-						<GridViewColumn Header="Path">
+						<GridViewColumn Header="Path" Width="300">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<StackPanel Orientation="Horizontal">
-										<Image Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}" Margin="0,0,5,0"/>
-										<TextBlock Text="{Binding Path=Path}" ToolTip="{Binding Path=Path}"/>
+										<ui:SnapToPixelsImage Source="{Binding Path=Path, Converter={StaticResource FileIconValueConverter}}"/>
+										<TextBlock Text="{Binding Path=Path}" ToolTip="{Binding Path=Path}" Margin="3,0,0,0"/>
 									</StackPanel>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
-						<GridViewColumn Header="Files">
+						<GridViewColumn Header="Files" Width="48">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Path=FileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
-						<GridViewColumn Header="Size (bytes)">
+						<GridViewColumn Header="Size (bytes)" Width="96">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Path=TotalFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
-						<GridViewColumn Header="New">
+						<GridViewColumn Header="New" Width="54">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Path=NewFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
-						<GridViewColumn Header="Updated">
+						<GridViewColumn Header="Updated" Width="54">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Path=UpdatedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
-						<GridViewColumn Header="Deleted">
+						<GridViewColumn Header="Deleted" Width="54">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Path=DeletedFileCount, StringFormat=n0}" HorizontalAlignment="Right"/>
 								</DataTemplate>
 							</GridViewColumn.CellTemplate>
 						</GridViewColumn>
-						<GridViewColumn Header="Transfer Size (bytes)">
+						<GridViewColumn Header="Transfer Size (bytes)" Width="116">
 							<GridViewColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Path=TransferFileSize, StringFormat=n0}" HorizontalAlignment="Right"/>
@@ -81,12 +79,11 @@
 					</GridView.Columns>
 				</GridView>
 			</ListView.View>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="ui:Commands.ViewBackupLocationDetails" Header="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
-                </ContextMenu>
-            </ListView.ContextMenu>
-        </ListView>
-		<Button Margin="0,12,0,0" HorizontalAlignment="Right" IsDefault="True" IsCancel="True">Close</Button>
-	</StackPanel>
+			<ListView.ContextMenu>
+				<ContextMenu>
+					<MenuItem Command="ui:Commands.ViewBackupLocationDetails"/>
+				</ContextMenu>
+			</ListView.ContextMenu>
+		</ListView>
+	</DockPanel>
 </Window>

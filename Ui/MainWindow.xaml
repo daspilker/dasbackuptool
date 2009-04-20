@@ -54,13 +54,13 @@
 			<TextBlock Grid.Row="2"  Grid.Column="2" Text="{Binding Path=Files.LocalRepositoryStatistics.FileCount, StringFormat=n0}"/>
 			<TextBlock Grid.Row="4" HorizontalAlignment="Right">Total size:</TextBlock>
 			<TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding Path=Files.LocalRepositoryStatistics.TotalFileSize, StringFormat={}{0:n0} bytes}"/>
-			<ui:CommandButton Grid.Column="3" Grid.RowSpan="5" VerticalAlignment="Top" Command="ui:Commands.SelectBackupLocations"/>
+			<Button Grid.Column="3" Grid.RowSpan="5" VerticalAlignment="Top" Command="ui:Commands.SelectBackupLocations"/>
 			<TextBlock Grid.Row="6" Grid.ColumnSpan="4" FontWeight="Bold">Remote files</TextBlock>
 			<TextBlock Grid.Row="8" HorizontalAlignment="Right">Count:</TextBlock>
 			<TextBlock Grid.Row="8" Grid.Column="2" Text="{Binding Path=Files.RemoteRepositoryStatistics.FileCount, StringFormat=n0}"/>
 			<TextBlock Grid.Row="10" HorizontalAlignment="Right">Total size:</TextBlock>
 			<TextBlock Grid.Row="10" Grid.Column="2" Text="{Binding Path=Files.RemoteRepositoryStatistics.TotalFileSize, StringFormat={}{0:n0} bytes}"/>
-			<ui:CommandButton Grid.Row="6" Grid.Column="3" Grid.RowSpan="5" VerticalAlignment="Top" Command="ui:Commands.ConfigureBucket"/>
+			<Button Grid.Row="6" Grid.Column="3" Grid.RowSpan="5" VerticalAlignment="Top" Command="ui:Commands.ConfigureBucket"/>
 			<TextBlock Grid.Row="12" Grid.ColumnSpan="4" FontWeight="Bold">Difference</TextBlock>
 			<TextBlock Grid.Row="14" HorizontalAlignment="Right">New files:</TextBlock>
 			<TextBlock Grid.Row="14" Grid.Column="2" Text="{Binding Path=Files.LocalRepositoryStatistics.NewFileCount, StringFormat=n0}"/>
@@ -70,8 +70,8 @@
 			<TextBlock Grid.Row="18" Grid.Column="2" Text="{Binding Path=Files.LocalRepositoryStatistics.DeletedFileCount, StringFormat=n0}"/>
 			<TextBlock Grid.Row="20" HorizontalAlignment="Right">Transfer file size:</TextBlock>
 			<TextBlock Grid.Row="20" Grid.Column="2" Text="{Binding Path=Files.LocalRepositoryStatistics.TransferFileSize, StringFormat={}{0:n0} bytes}"/>
-			<ui:CommandButton Grid.Row="12" Grid.Column="3" Grid.RowSpan="9" VerticalAlignment="Top" Command="ui:Commands.ViewDetails"/>
-			<ui:CommandButton Grid.Row="22" Grid.ColumnSpan="4" Command="ui:Commands.Backup" IsEnabledChanged="BackupButtonEnabledChanged"/>
+			<Button Grid.Row="12" Grid.Column="3" Grid.RowSpan="9" VerticalAlignment="Top" Command="ui:Commands.ViewDetails"/>
+			<Button Grid.Row="22" Grid.ColumnSpan="4" Command="ui:Commands.Backup" IsEnabledChanged="BackupButtonEnabledChanged"/>
 		</Grid>
 	</DockPanel>
 </Window>

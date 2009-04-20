@@ -13,10 +13,9 @@ namespace DasBackupTool.Ui
         public DetailWindow(Files files)
         {
             SetValue(FilesProperty, files);
-
-            InitializeComponent();
             DataContext = this;
             Language = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag);
+            InitializeComponent();
         }
 
         private void ViewBackupLocationDetailsCanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -26,14 +25,22 @@ namespace DasBackupTool.Ui
 
         private void ViewBackupLocationDetailsExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            BackupLocationDetailWindow backupLocationDetailWindow = new BackupLocationDetailWindow((BackupLocationStatistics)BackupLocationsListView.SelectedItem);
-            backupLocationDetailWindow.Owner = this;
-            backupLocationDetailWindow.ShowDialog();
+            ShowDetailWindow();
         }
 
         private void BackupLocationsListViewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            Commands.ViewBackupLocationDetails.Execute(null, null);
+            if (BackupLocationsListView.SelectedItems.Count > 0)
+            {
+                ShowDetailWindow();
+            }
+        }
+
+        private void ShowDetailWindow()
+        {
+            BackupLocationDetailWindow backupLocationDetailWindow = new BackupLocationDetailWindow((BackupLocationStatistics)BackupLocationsListView.SelectedItem);
+            backupLocationDetailWindow.Owner = this;
+            backupLocationDetailWindow.ShowDialog();
         }
     }
 }

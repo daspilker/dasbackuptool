@@ -2,3 +2,8 @@ do not count excluded files in local file count and size
 files are not streamed to S3, copy to request stream consumes too much memory
 enable backup only if something to backup
 FileSystemWatcher
+render excluded file pattern as expander and textarea
+implement bucket location constraints
+delete bucket
+list and create buckets in background thread
+exception detail dialog with stack trace

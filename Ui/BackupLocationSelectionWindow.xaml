@@ -37,11 +37,6 @@
 
 		<TextBlock Grid.ColumnSpan="2" Text="Drop new backup locations here:"/>
 		<ListView Name="BackupLocationsListView" Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding Source={StaticResource BackupLocations}}" AllowDrop="True" Drop="BackupLocationsListBoxDrop">
-			<ListView.ItemContainerStyle>
-				<Style TargetType="ListViewItem">
-					<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-				</Style>
-			</ListView.ItemContainerStyle>
 			<ListView.View>
 				<GridView>
 					<GridView.Columns>
@@ -78,14 +73,14 @@
 			</ListView.View>
 			<ListView.ContextMenu>
 				<ContextMenu>
-					<MenuItem Command="ui:Commands.RemoveBackupLocation" Header="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
+					<MenuItem Command="ui:Commands.RemoveBackupLocation"/>
 				</ContextMenu>
 			</ListView.ContextMenu>
 		</ListView>
 		<TextBlock Grid.Row="4" VerticalAlignment="Center" Margin="0,0,6,0" Text="Excluded files pattern:"/>
 		<TextBox Name="ExcludedFilesPatternTextBox" Grid.Column="1" Grid.Row="4" Text="{Binding Path=ExcludedFilesPattern, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"/>
 		<StackPanel Grid.ColumnSpan="2" Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
-			<ui:CommandButton Margin="0,0,6,0" IsDefault="True" Command="ui:Commands.SaveBackupLocations"/>
+			<Button Margin="0,0,6,0" IsDefault="True" Command="ui:Commands.SaveBackupLocations"/>
 			<Button IsCancel="True" Content="Cancel"/>
 		</StackPanel>
 	</Grid>

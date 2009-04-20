@@ -25,7 +25,7 @@
 		<TextBox Grid.Column="2" Text="{Binding Path=Bucket, UpdateSourceTrigger=PropertyChanged}"/>
 		<CheckBox Grid.Row="2" Grid.Column="2" Content="Place this bucket in Europe" IsChecked="{Binding Path=EuLocationConstraint}"/>
 		<StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
-			<ui:CommandButton Margin="0,0,6,0" IsDefault="True" Command="ui:Commands.DoCreateBucket"/>
+			<Button Margin="0,0,6,0" IsDefault="True" Command="ui:Commands.DoCreateBucket"/>
 			<Button IsCancel="True" Content="Cancel"/>
 		</StackPanel>
 	</Grid>
